@@ -11,6 +11,8 @@ import Contact from "./pages/Contact";
 import Confidentialite from "./pages/Confidentialite";
 import Conditions from "./pages/Conditions";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/confidentialite" element={<Confidentialite />} />
           <Route path="/conditions" element={<Conditions />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
