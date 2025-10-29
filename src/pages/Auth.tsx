@@ -96,7 +96,7 @@ const Auth = () => {
       <div className="flex-1 flex items-center justify-center py-12 px-4 bg-secondary/20">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">MathInfo Corrigés</CardTitle>
+            <CardTitle className="text-2xl text-center">Le Koro</CardTitle>
             <CardDescription className="text-center">
               Accédez à votre espace personnel
             </CardDescription>

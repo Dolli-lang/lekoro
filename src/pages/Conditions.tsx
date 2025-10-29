@@ -10,7 +10,7 @@ const Conditions = () => {
         <p className="lead">Dernière mise à jour : {new Date().toLocaleDateString('fr-FR')}</p>
         
         <h2>Utilisation du service</h2>
-        <p>MathInfo Corrigés est un service gratuit destiné aux étudiants. Les corrigés sont consultables uniquement en ligne.</p>
+        <p>Le Koro est un service gratuit destiné aux étudiants. Les corrigés sont consultables uniquement en ligne.</p>
         
         <h2>Propriété intellectuelle</h2>
         <p>Tous les corrigés sont protégés par le droit d'auteur. Toute reproduction ou distribution est interdite.</p>

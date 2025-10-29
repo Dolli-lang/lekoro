@@ -8,8 +8,8 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <img src={logo} alt="MathInfo Corrigés" className="h-10 w-10" />
-              <span className="text-xl font-bold">MathInfo Corrigés</span>
+              <img src={logo} alt="Le Koro" className="h-10 w-10" />
+              <span className="text-xl font-bold">Le Koro</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-md">
               Plateforme dédiée aux étudiants en Mathématiques et Informatique. 
@@ -36,7 +36,7 @@ export const Footer = () => {
         </div>
         
         <div className="mt-8 pt-6 border-t border-border text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MathInfo Corrigés. Tous droits réservés.</p>
+          <p>© {new Date().getFullYear()} Le Koro. Tous droits réservés.</p>
         </div>
       </div>
     </footer>

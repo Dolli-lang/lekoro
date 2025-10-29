@@ -21,7 +21,7 @@ const Index = () => {
           <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
             Réussissez vos études avec<br />
             <span className="bg-gradient-to-r from-accent to-yellow-300 bg-clip-text text-transparent">
-              MathInfo Corrigés
+              Le Koro
             </span>
           </h1>
           <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto opacity-95">
@@ -47,7 +47,7 @@ const Index = () => {
       <section className="py-20 bg-secondary/30">
         <div className="container">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
-            Pourquoi MathInfo Corrigés ?
+            Pourquoi Le Koro ?
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="hover:shadow-[var(--shadow-elegant)] transition-all">

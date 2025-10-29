@@ -27,7 +27,7 @@ const FAQ = () => {
     },
     {
       question: "L'inscription est-elle vraiment gratuite ?",
-      answer: "Oui, MathInfo Corrigés est totalement gratuit pour tous les étudiants. Notre mission est de faciliter l'accès aux ressources pédagogiques."
+      answer: "Oui, Le Koro est totalement gratuit pour tous les étudiants. Notre mission est de faciliter l'accès aux ressources pédagogiques."
     }
   ];
 
