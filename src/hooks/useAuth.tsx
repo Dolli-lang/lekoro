@@ -100,7 +100,7 @@ export const useAuth = () => {
 
       toast({
         title: "Inscription réussie !",
-        description: "Bienvenue sur MathInfo Corrigés.",
+        description: "Veuillez vérifier votre email pour confirmer votre compte.",
       });
 
       return { data, error: null };

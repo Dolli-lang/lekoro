@@ -30,6 +30,7 @@ const Auth = () => {
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   
   const { user, signUp, signIn } = useAuth();
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const Auth = () => {
       setLoading(true);
       const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
       if (!error) {
-        navigate("/ues");
+        setShowEmailConfirmation(true);
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -140,47 +141,73 @@ const Auth = () => {
               </TabsContent>
               
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Nom complet</Label>
-                    <Input
-                      id="signup-name"
-                      type="text"
-                      placeholder="Jean Dupont"
-                      value={signUpData.fullName}
-                      onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
-                      disabled={loading}
-                    />
-                    {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
+                {showEmailConfirmation ? (
+                  <div className="text-center space-y-4 py-6">
+                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                      <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-semibold">Vérifiez votre email</h3>
+                    <p className="text-muted-foreground">
+                      Un email de confirmation a été envoyé à <strong>{signUpData.email}</strong>.
+                      <br />
+                      Veuillez cliquer sur le lien dans l'email pour activer votre compte.
+                    </p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowEmailConfirmation(false);
+                        setActiveTab("login");
+                      }}
+                      className="mt-4"
+                    >
+                      Retour à la connexion
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="votre@email.com"
-                      value={signUpData.email}
-                      onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
-                      disabled={loading}
-                    />
-                    {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Mot de passe</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={signUpData.password}
-                      onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
-                      disabled={loading}
-                    />
-                    {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Inscription..." : "S'inscrire"}
-                  </Button>
-                </form>
+                ) : (
+                  <form onSubmit={handleSignUp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-name">Nom complet</Label>
+                      <Input
+                        id="signup-name"
+                        type="text"
+                        placeholder="Jean Dupont"
+                        value={signUpData.fullName}
+                        onChange={(e) => setSignUpData({ ...signUpData, fullName: e.target.value })}
+                        disabled={loading}
+                      />
+                      {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-email">Email</Label>
+                      <Input
+                        id="signup-email"
+                        type="email"
+                        placeholder="votre@email.com"
+                        value={signUpData.email}
+                        onChange={(e) => setSignUpData({ ...signUpData, email: e.target.value })}
+                        disabled={loading}
+                      />
+                      {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-password">Mot de passe</Label>
+                      <Input
+                        id="signup-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={signUpData.password}
+                        onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
+                        disabled={loading}
+                      />
+                      {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Inscription..." : "S'inscrire"}
+                    </Button>
+                  </form>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
