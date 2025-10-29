@@ -15,11 +15,10 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
 
+  // Ne pas rediriger automatiquement pour éviter les allers-retours pendant la vérification du rôle
   useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate("/auth");
-    }
-  }, [user, isAdmin, loading, navigate]);
+    // L'état isAdmin sera évalué ci-dessous pour afficher soit le contenu admin, soit un message d'accès refusé
+  }, []);
 
   if (loading) {
     return (
@@ -29,8 +28,30 @@ const AdminDashboard = () => {
     );
   }
 
-  if (!user || !isAdmin) {
-    return null;
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle>Connexion requise</CardTitle>
+            <CardDescription>Veuillez vous connecter pour accéder à l'administration.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="max-w-md w-full">
+          <CardHeader>
+            <CardTitle>Accès refusé</CardTitle>
+            <CardDescription>Votre compte n'a pas les droits administrateur.</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
   }
 
   return (
