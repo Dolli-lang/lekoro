@@ -84,31 +84,7 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string
-          full_name: string
-          id: string
-          updated_at: string
-        }
-        Insert: {
-          avatar_url?: string | null
-          created_at?: string
-          full_name: string
-          id: string
-          updated_at?: string
-        }
-        Update: {
-          avatar_url?: string | null
-          created_at?: string
-          full_name?: string
-          id?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      ues: {
+      disciplines: {
         Row: {
           created_at: string
           description: string | null
@@ -137,6 +113,71 @@ export type Database = {
           visible?: boolean
         }
         Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ues: {
+        Row: {
+          created_at: string
+          description: string | null
+          discipline_id: string | null
+          id: string
+          image_url: string | null
+          nom: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          discipline_id?: string | null
+          id?: string
+          image_url?: string | null
+          nom: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          discipline_id?: string | null
+          id?: string
+          image_url?: string | null
+          nom?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ues_discipline_id_fkey"
+            columns: ["discipline_id"]
+            isOneToOne: false
+            referencedRelation: "disciplines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

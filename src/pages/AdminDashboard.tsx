@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import UsersManagement from "@/components/admin/UsersManagement";
 import UEManagement from "@/components/admin/UEManagement";
 import CorrigesManagement from "@/components/admin/CorrigesManagement";
+import DisciplinesManagement from "@/components/admin/DisciplinesManagement";
 import AdminStats from "@/components/admin/AdminStats";
 import { Loader2 } from "lucide-react";
 
@@ -65,12 +66,25 @@ const AdminDashboard = () => {
 
         <AdminStats />
 
-        <Tabs defaultValue="ues" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="disciplines" className="mt-8">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="disciplines">Disciplines</TabsTrigger>
             <TabsTrigger value="ues">UEs</TabsTrigger>
             <TabsTrigger value="corriges">Corrigés</TabsTrigger>
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="disciplines" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gestion des Disciplines</CardTitle>
+                <CardDescription>Ajoutez, modifiez ou supprimez des disciplines</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DisciplinesManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="ues" className="mt-6">
             <Card>

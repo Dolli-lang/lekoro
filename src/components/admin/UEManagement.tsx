@@ -15,15 +15,36 @@ interface UE {
   description: string | null;
   image_url: string | null;
   visible: boolean;
+  discipline_id: string | null;
+}
+
+interface Discipline {
+  id: string;
+  nom: string;
 }
 
 const UEManagement = () => {
   const [ues, setUes] = useState<UE[]>([]);
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUE, setEditingUE] = useState<UE | null>(null);
-  const [formData, setFormData] = useState({ nom: "", description: "" });
+  const [formData, setFormData] = useState({ nom: "", description: "", discipline_id: "" });
   const { toast } = useToast();
+
+  const fetchDisciplines = async () => {
+    const { data, error } = await supabase
+      .from("disciplines")
+      .select("id, nom")
+      .eq("visible", true)
+      .order("nom");
+
+    if (error) {
+      console.error("Erreur lors du chargement des disciplines:", error);
+    } else {
+      setDisciplines(data || []);
+    }
+  };
 
   const fetchUEs = async () => {
     const { data, error } = await supabase
@@ -44,6 +65,7 @@ const UEManagement = () => {
   };
 
   useEffect(() => {
+    fetchDisciplines();
     fetchUEs();
   }, []);
 
@@ -91,7 +113,7 @@ const UEManagement = () => {
         setDialogOpen(false);
       }
     }
-    setFormData({ nom: "", description: "" });
+    setFormData({ nom: "", description: "", discipline_id: "" });
   };
 
   const handleDelete = async (id: string) => {
@@ -117,7 +139,7 @@ const UEManagement = () => {
 
   const openEditDialog = (ue: UE) => {
     setEditingUE(ue);
-    setFormData({ nom: ue.nom, description: ue.description || "" });
+    setFormData({ nom: ue.nom, description: ue.description || "", discipline_id: ue.discipline_id || "" });
     setDialogOpen(true);
   };
 
@@ -133,7 +155,7 @@ const UEManagement = () => {
     <div>
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <Button className="mb-4" onClick={() => { setEditingUE(null); setFormData({ nom: "", description: "" }); }}>
+          <Button className="mb-4" onClick={() => { setEditingUE(null); setFormData({ nom: "", description: "", discipline_id: "" }); }}>
             <Plus className="w-4 h-4 mr-2" />
             Ajouter une UE
           </Button>
@@ -143,6 +165,23 @@ const UEManagement = () => {
             <DialogTitle>{editingUE ? "Modifier l'UE" : "Ajouter une UE"}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="discipline">Discipline</Label>
+              <select
+                id="discipline"
+                value={formData.discipline_id}
+                onChange={(e) => setFormData({ ...formData, discipline_id: e.target.value })}
+                className="w-full px-3 py-2 border rounded-md"
+                required
+              >
+                <option value="">Sélectionner une discipline</option>
+                {disciplines.map((discipline) => (
+                  <option key={discipline.id} value={discipline.id}>
+                    {discipline.nom}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <Label htmlFor="nom">Nom de l'UE</Label>
               <Input
