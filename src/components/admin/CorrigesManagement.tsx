@@ -9,9 +9,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
+interface Discipline {
+  id: string;
+  nom: string;
+}
+
 interface UE {
   id: string;
   nom: string;
+  discipline_id: string | null;
+  disciplines?: { nom: string };
 }
 
 interface Corrige {
@@ -19,16 +26,22 @@ interface Corrige {
   type: string;
   annee: string;
   image_url: string;
-  ues: { nom: string };
+  ues: { 
+    nom: string;
+    disciplines: { nom: string } | null;
+  };
 }
 
 const CorrigesManagement = () => {
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
   const [ues, setUes] = useState<UE[]>([]);
+  const [filteredUes, setFilteredUes] = useState<UE[]>([]);
   const [corriges, setCorriges] = useState<Corrige[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
+    discipline_id: "",
     ue_id: "",
     type: "TD",
     annee: new Date().getFullYear().toString(),
@@ -37,14 +50,22 @@ const CorrigesManagement = () => {
   const { toast } = useToast();
 
   const fetchData = async () => {
-    const [uesRes, corrigesRes] = await Promise.all([
-      supabase.from("ues").select("id, nom").order("nom"),
-      supabase.from("corriges").select("*, ues(nom)").order("created_at", { ascending: false }),
+    const [disciplinesRes, uesRes, corrigesRes] = await Promise.all([
+      supabase.from("disciplines").select("id, nom").eq("visible", true).order("nom"),
+      supabase.from("ues").select("id, nom, discipline_id, disciplines(nom)").order("nom"),
+      supabase.from("corriges").select("*, ues(nom, disciplines(nom))").order("created_at", { ascending: false }),
     ]);
 
-    if (uesRes.data) setUes(uesRes.data);
+    if (disciplinesRes.data) setDisciplines(disciplinesRes.data);
+    if (uesRes.data) setUes(uesRes.data as any);
     if (corrigesRes.data) setCorriges(corrigesRes.data as any);
     setLoading(false);
+  };
+
+  const handleDisciplineChange = (disciplineId: string) => {
+    setFormData({ ...formData, discipline_id: disciplineId, ue_id: "" });
+    const filtered = ues.filter(ue => ue.discipline_id === disciplineId);
+    setFilteredUes(filtered);
   };
 
   useEffect(() => {
@@ -110,8 +131,9 @@ const CorrigesManagement = () => {
       });
       fetchData();
       setDialogOpen(false);
-      setFormData({ ue_id: "", type: "TD", annee: new Date().getFullYear().toString() });
+      setFormData({ discipline_id: "", ue_id: "", type: "TD", annee: new Date().getFullYear().toString() });
       setSelectedFile(null);
+      setFilteredUes([]);
     }
     setUploading(false);
   };
@@ -139,13 +161,32 @@ const CorrigesManagement = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="ue">UE</Label>
-              <Select value={formData.ue_id} onValueChange={(value) => setFormData({ ...formData, ue_id: value })}>
+              <Label htmlFor="discipline">Discipline</Label>
+              <Select value={formData.discipline_id} onValueChange={handleDisciplineChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une UE" />
+                  <SelectValue placeholder="Sélectionner une discipline" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ues.map((ue) => (
+                  {disciplines.map((discipline) => (
+                    <SelectItem key={discipline.id} value={discipline.id}>
+                      {discipline.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="ue">UE</Label>
+              <Select 
+                value={formData.ue_id} 
+                onValueChange={(value) => setFormData({ ...formData, ue_id: value })}
+                disabled={!formData.discipline_id}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={formData.discipline_id ? "Sélectionner une UE" : "Sélectionnez d'abord une discipline"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredUes.map((ue) => (
                     <SelectItem key={ue.id} value={ue.id}>
                       {ue.nom}
                     </SelectItem>
@@ -195,6 +236,7 @@ const CorrigesManagement = () => {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Discipline</TableHead>
             <TableHead>UE</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Année</TableHead>
@@ -204,6 +246,7 @@ const CorrigesManagement = () => {
         <TableBody>
           {corriges.map((corrige) => (
             <TableRow key={corrige.id}>
+              <TableCell>{corrige.ues.disciplines?.nom || "N/A"}</TableCell>
               <TableCell>{corrige.ues.nom}</TableCell>
               <TableCell>{corrige.type}</TableCell>
               <TableCell>{corrige.annee}</TableCell>
