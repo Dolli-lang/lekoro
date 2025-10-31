@@ -2,14 +2,22 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, FileText, Loader2 } from "lucide-react";
+import { BookOpen, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+interface Discipline {
+  id: string;
+  nom: string;
+  description: string | null;
+  image_url: string | null;
+}
 
 interface UE {
   id: string;
   nom: string;
   description: string | null;
+  discipline_id: string | null;
 }
 
 interface Corrige {
@@ -20,6 +28,8 @@ interface Corrige {
 }
 
 const UESelection = () => {
+  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
   const [ues, setUes] = useState<UE[]>([]);
   const [selectedUE, setSelectedUE] = useState<UE | null>(null);
   const [selectedType, setSelectedType] = useState<string>("");
@@ -31,21 +41,43 @@ const UESelection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUEs = async () => {
+    const fetchDisciplines = async () => {
       const { data, error } = await supabase
-        .from("ues")
+        .from("disciplines")
         .select("*")
         .eq("visible", true)
         .order("nom");
 
       if (!error && data) {
-        setUes(data);
+        setDisciplines(data);
       }
       setLoading(false);
     };
 
-    fetchUEs();
+    fetchDisciplines();
   }, []);
+
+  const handleDisciplineClick = async (discipline: Discipline) => {
+    setSelectedDiscipline(discipline);
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("ues")
+      .select("*")
+      .eq("discipline_id", discipline.id)
+      .eq("visible", true)
+      .order("nom");
+
+    if (!error && data) {
+      setUes(data);
+    }
+    setLoading(false);
+  };
+
+  const handleBackToDisciplines = () => {
+    setSelectedDiscipline(null);
+    setUes([]);
+  };
 
   const handleUEClick = (ue: UE) => {
     setSelectedUE(ue);
@@ -103,24 +135,67 @@ const UESelection = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {ues.map((ue) => (
-          <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleUEClick(ue)}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                {ue.nom}
-              </CardTitle>
-              {ue.description && <CardDescription>{ue.description}</CardDescription>}
-            </CardHeader>
-            <CardContent>
-              <Button variant="outline" className="w-full">
-                Voir les corrigés
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {!selectedDiscipline ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {disciplines.map((discipline) => (
+            <Card 
+              key={discipline.id} 
+              className="cursor-pointer hover:shadow-lg transition-shadow" 
+              onClick={() => handleDisciplineClick(discipline)}
+            >
+              <CardHeader>
+                {discipline.image_url && (
+                  <img 
+                    src={discipline.image_url} 
+                    alt={discipline.nom}
+                    className="w-full h-32 object-cover rounded-md mb-3"
+                  />
+                )}
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5" />
+                  {discipline.nom}
+                </CardTitle>
+                {discipline.description && <CardDescription>{discipline.description}</CardDescription>}
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">
+                  Voir les UEs
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div>
+          <Button 
+            variant="ghost" 
+            onClick={handleBackToDisciplines}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour aux disciplines
+          </Button>
+          <h2 className="text-2xl font-bold mb-4">{selectedDiscipline.nom}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ues.map((ue) => (
+              <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleUEClick(ue)}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    {ue.nom}
+                  </CardTitle>
+                  {ue.description && <CardDescription>{ue.description}</CardDescription>}
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    Voir les corrigés
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>

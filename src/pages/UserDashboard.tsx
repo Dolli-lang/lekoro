@@ -52,8 +52,8 @@ const UserDashboard = () => {
           <TabsContent value="ues" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Unités d'Enseignement</CardTitle>
-                <CardDescription>Sélectionnez une UE pour accéder aux TD et examens</CardDescription>
+                <CardTitle>Disciplines et UEs</CardTitle>
+                <CardDescription>Sélectionnez une discipline puis une UE pour accéder aux TD et examens</CardDescription>
               </CardHeader>
               <CardContent>
                 <UESelection />
