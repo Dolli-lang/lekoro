@@ -24,7 +24,7 @@ interface Corrige {
   id: string;
   type: string;
   annee: string;
-  image_url: string;
+  image_urls: string[];
 }
 
 const UESelection = () => {
@@ -249,16 +249,20 @@ const UESelection = () => {
               {selectedUE?.nom} - {selectedType} - {selectedAnnee}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[70vh] overflow-y-auto">
+          <div className="grid grid-cols-1 gap-4 max-h-[70vh] overflow-y-auto">
             {corriges.map((corrige) => (
-              <div key={corrige.id} className="relative group">
-                <img
-                  src={corrige.image_url}
-                  alt={`Corrigé ${corrige.annee}`}
-                  className="w-full h-auto rounded-lg"
-                  onContextMenu={(e) => e.preventDefault()}
-                  draggable={false}
-                />
+              <div key={corrige.id} className="space-y-2">
+                {corrige.image_urls?.map((imageUrl, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={imageUrl}
+                      alt={`Corrigé ${corrige.annee} - Page ${idx + 1}`}
+                      className="w-full h-auto rounded-lg"
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable={false}
+                    />
+                  </div>
+                ))}
               </div>
             ))}
           </div>

@@ -25,7 +25,7 @@ interface Corrige {
   id: string;
   type: string;
   annee: string;
-  image_url: string;
+  image_urls: string[];
   ues: { 
     nom: string;
     disciplines: { nom: string } | null;
@@ -46,7 +46,7 @@ const CorrigesManagement = () => {
     type: "TD",
     annee: new Date().getFullYear().toString(),
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -73,18 +73,19 @@ const CorrigesManagement = () => {
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      const files = Array.from(e.target.files).slice(0, 50);
+      setSelectedFiles(files);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedFile) {
+    if (selectedFiles.length === 0) {
       toast({
         title: "Erreur",
-        description: "Veuillez sélectionner une image",
+        description: "Veuillez sélectionner au moins une image",
         variant: "destructive",
       });
       return;
@@ -92,49 +93,51 @@ const CorrigesManagement = () => {
 
     setUploading(true);
 
-    const fileExt = selectedFile.name.split(".").pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    try {
+      // Upload all files
+      const uploadPromises = selectedFiles.map(async (file) => {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from("corrige-images")
-      .upload(filePath, selectedFile);
+        const { error: uploadError } = await supabase.storage
+          .from("corrige-images")
+          .upload(filePath, file);
 
-    if (uploadError) {
-      toast({
-        title: "Erreur",
-        description: "Impossible d'uploader l'image",
-        variant: "destructive",
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("corrige-images")
+          .getPublicUrl(filePath);
+
+        return publicUrl;
       });
-      setUploading(false);
-      return;
-    }
 
-    const { data: { publicUrl } } = supabase.storage
-      .from("corrige-images")
-      .getPublicUrl(filePath);
+      const imageUrls = await Promise.all(uploadPromises);
 
-    const { error } = await supabase
-      .from("corriges")
-      .insert([{ ...formData, image_url: publicUrl }]);
+      const { error } = await supabase
+        .from("corriges")
+        .insert([{ ...formData, image_urls: imageUrls }]);
 
-    if (error) {
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: `Corrigé ajouté avec ${imageUrls.length} image(s)`,
+      });
+      fetchData();
+      setDialogOpen(false);
+      setFormData({ discipline_id: "", ue_id: "", type: "TD", annee: new Date().getFullYear().toString() });
+      setSelectedFiles([]);
+      setFilteredUes([]);
+    } catch (error) {
       toast({
         title: "Erreur",
         description: "Impossible d'ajouter le corrigé",
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Succès",
-        description: "Corrigé ajouté",
-      });
-      fetchData();
-      setDialogOpen(false);
-      setFormData({ discipline_id: "", ue_id: "", type: "TD", annee: new Date().getFullYear().toString() });
-      setSelectedFile(null);
-      setFilteredUes([]);
     }
+    
     setUploading(false);
   };
 
@@ -217,14 +220,20 @@ const CorrigesManagement = () => {
               />
             </div>
             <div>
-              <Label htmlFor="image">Image</Label>
+              <Label htmlFor="images">Images (jusqu'à 50)</Label>
               <Input
-                id="image"
+                id="images"
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleFileChange}
                 required
               />
+              {selectedFiles.length > 0 && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  {selectedFiles.length} image(s) sélectionnée(s)
+                </p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={uploading}>
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Ajouter"}
@@ -240,7 +249,7 @@ const CorrigesManagement = () => {
             <TableHead>UE</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Année</TableHead>
-            <TableHead>Image</TableHead>
+            <TableHead>Images</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -251,7 +260,11 @@ const CorrigesManagement = () => {
               <TableCell>{corrige.type}</TableCell>
               <TableCell>{corrige.annee}</TableCell>
               <TableCell>
-                <img src={corrige.image_url} alt="Corrigé" className="h-12 w-12 object-cover rounded" />
+                <div className="flex gap-1 flex-wrap">
+                  {corrige.image_urls?.map((url, idx) => (
+                    <img key={idx} src={url} alt={`Corrigé ${idx + 1}`} className="h-12 w-12 object-cover rounded" />
+                  ))}
+                </div>
               </TableCell>
             </TableRow>
           ))}

@@ -48,7 +48,7 @@ export type Database = {
           annee: string
           created_at: string
           id: string
-          image_url: string
+          image_urls: string[] | null
           type: string
           ue_id: string
           updated_at: string
@@ -58,7 +58,7 @@ export type Database = {
           annee: string
           created_at?: string
           id?: string
-          image_url: string
+          image_urls?: string[] | null
           type: string
           ue_id: string
           updated_at?: string
@@ -68,7 +68,7 @@ export type Database = {
           annee?: string
           created_at?: string
           id?: string
-          image_url?: string
+          image_urls?: string[] | null
           type?: string
           ue_id?: string
           updated_at?: string
