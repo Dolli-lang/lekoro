@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from "sonner";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 
-interface Discipline {
+interface UFR {
   id: string;
   nom: string;
   description: string | null;
@@ -17,32 +17,31 @@ interface Discipline {
   visible: boolean;
 }
 
-const DisciplinesManagement = () => {
-  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+const UFRManagement = () => {
+  const [ufrs, setUfrs] = useState<UFR[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
-  const [editingDiscipline, setEditingDiscipline] = useState<Discipline | null>(null);
+  const [editingUFR, setEditingUFR] = useState<UFR | null>(null);
   const [formData, setFormData] = useState({ nom: "", description: "" });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
-  const fetchDisciplines = async () => {
+  const fetchUFRs = async () => {
     const { data, error } = await supabase
-      .from("disciplines")
+      .from("ufrs")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (error) {
-      toast.error("Erreur lors du chargement des disciplines");
+      toast.error("Erreur lors du chargement des UFRs");
       console.error(error);
     } else {
-      setDisciplines(data || []);
+      setUfrs(data || []);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchDisciplines();
+    fetchUFRs();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -54,9 +53,8 @@ const DisciplinesManagement = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    let imageUrl = editingDiscipline?.image_url || null;
+    let imageUrl = editingUFR?.image_url || null;
 
-    // Upload image if selected
     if (selectedFile) {
       const fileExt = selectedFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
@@ -79,26 +77,26 @@ const DisciplinesManagement = () => {
       imageUrl = publicUrl;
     }
 
-    if (editingDiscipline) {
+    if (editingUFR) {
       const { error } = await supabase
-        .from("disciplines")
+        .from("ufrs")
         .update({ 
           nom: formData.nom, 
           description: formData.description,
           image_url: imageUrl
         })
-        .eq("id", editingDiscipline.id);
+        .eq("id", editingUFR.id);
 
       if (error) {
         toast.error("Erreur lors de la modification");
         console.error(error);
       } else {
-        toast.success("Discipline modifiée avec succès");
-        fetchDisciplines();
+        toast.success("UFR modifié avec succès");
+        fetchUFRs();
       }
     } else {
       const { error } = await supabase
-        .from("disciplines")
+        .from("ufrs")
         .insert([{ 
           nom: formData.nom, 
           description: formData.description,
@@ -109,23 +107,22 @@ const DisciplinesManagement = () => {
         toast.error("Erreur lors de la création");
         console.error(error);
       } else {
-        toast.success("Discipline créée avec succès");
-        fetchDisciplines();
+        toast.success("UFR créé avec succès");
+        fetchUFRs();
       }
     }
 
     setOpen(false);
     setFormData({ nom: "", description: "" });
-    setEditingDiscipline(null);
+    setEditingUFR(null);
     setSelectedFile(null);
-    setUploadProgress(0);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cette discipline ?")) return;
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet UFR ?")) return;
 
     const { error } = await supabase
-      .from("disciplines")
+      .from("ufrs")
       .delete()
       .eq("id", id);
 
@@ -133,14 +130,14 @@ const DisciplinesManagement = () => {
       toast.error("Erreur lors de la suppression");
       console.error(error);
     } else {
-      toast.success("Discipline supprimée avec succès");
-      fetchDisciplines();
+      toast.success("UFR supprimé avec succès");
+      fetchUFRs();
     }
   };
 
-  const openEditDialog = (discipline: Discipline) => {
-    setEditingDiscipline(discipline);
-    setFormData({ nom: discipline.nom, description: discipline.description || "" });
+  const openEditDialog = (ufr: UFR) => {
+    setEditingUFR(ufr);
+    setFormData({ nom: ufr.nom, description: ufr.description || "" });
     setOpen(true);
   };
 
@@ -157,20 +154,20 @@ const DisciplinesManagement = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button onClick={() => {
-            setEditingDiscipline(null);
+            setEditingUFR(null);
             setFormData({ nom: "", description: "" });
             setSelectedFile(null);
           }}>
-            Ajouter une discipline
+            Ajouter un UFR
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{editingDiscipline ? "Modifier" : "Ajouter"} une discipline</DialogTitle>
+            <DialogTitle>{editingUFR ? "Modifier" : "Ajouter"} un UFR</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="nom">Nom</Label>
+              <Label htmlFor="nom">Nom (ex: SSMT)</Label>
               <Input
                 id="nom"
                 value={formData.nom}
@@ -196,37 +193,37 @@ const DisciplinesManagement = () => {
               />
             </div>
             <Button type="submit" className="w-full">
-              {editingDiscipline ? "Modifier" : "Créer"}
+              {editingUFR ? "Modifier" : "Créer"}
             </Button>
           </form>
         </DialogContent>
       </Dialog>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {disciplines.map((discipline) => (
-          <Card key={discipline.id}>
+        {ufrs.map((ufr) => (
+          <Card key={ufr.id}>
             <CardContent className="p-4">
-              {discipline.image_url && (
+              {ufr.image_url && (
                 <img 
-                  src={discipline.image_url} 
-                  alt={discipline.nom}
+                  src={ufr.image_url} 
+                  alt={ufr.nom}
                   className="w-full h-32 object-cover rounded-md mb-3"
                 />
               )}
-              <h3 className="font-semibold text-lg mb-2">{discipline.nom}</h3>
-              <p className="text-sm text-muted-foreground mb-4">{discipline.description}</p>
+              <h3 className="font-semibold text-lg mb-2">{ufr.nom}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{ufr.description}</p>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => openEditDialog(discipline)}
+                  onClick={() => openEditDialog(ufr)}
                 >
                   <Pencil className="w-4 h-4" />
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => handleDelete(discipline.id)}
+                  onClick={() => handleDelete(ufr.id)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
@@ -239,4 +236,4 @@ const DisciplinesManagement = () => {
   );
 };
 
-export default DisciplinesManagement;
+export default UFRManagement;

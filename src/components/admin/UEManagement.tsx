@@ -18,31 +18,31 @@ interface UE {
   discipline_id: string | null;
 }
 
-interface Discipline {
+interface Departement {
   id: string;
   nom: string;
 }
 
 const UEManagement = () => {
   const [ues, setUes] = useState<UE[]>([]);
-  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [departements, setDepartements] = useState<Departement[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUE, setEditingUE] = useState<UE | null>(null);
   const [formData, setFormData] = useState({ nom: "", description: "", discipline_id: "" });
   const { toast } = useToast();
 
-  const fetchDisciplines = async () => {
+  const fetchDepartements = async () => {
     const { data, error } = await supabase
-      .from("disciplines")
+      .from("departements")
       .select("id, nom")
       .eq("visible", true)
       .order("nom");
 
     if (error) {
-      console.error("Erreur lors du chargement des disciplines:", error);
+      console.error("Error fetching departements:", error);
     } else {
-      setDisciplines(data || []);
+      setDepartements(data || []);
     }
   };
 
@@ -65,7 +65,7 @@ const UEManagement = () => {
   };
 
   useEffect(() => {
-    fetchDisciplines();
+    fetchDepartements();
     fetchUEs();
   }, []);
 
@@ -143,6 +143,12 @@ const UEManagement = () => {
     setDialogOpen(true);
   };
 
+  const getDepartementName = (departementId: string | null) => {
+    if (!departementId) return "Non assigné";
+    const departement = departements.find(d => d.id === departementId);
+    return departement?.nom || "Non assigné";
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -166,18 +172,18 @@ const UEManagement = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="discipline">Discipline</Label>
+              <Label htmlFor="departement">Département</Label>
               <select
-                id="discipline"
+                id="departement"
                 value={formData.discipline_id}
                 onChange={(e) => setFormData({ ...formData, discipline_id: e.target.value })}
                 className="w-full px-3 py-2 border rounded-md"
                 required
               >
-                <option value="">Sélectionner une discipline</option>
-                {disciplines.map((discipline) => (
-                  <option key={discipline.id} value={discipline.id}>
-                    {discipline.nom}
+                <option value="">Sélectionner un département</option>
+                {departements.map((departement) => (
+                  <option key={departement.id} value={departement.id}>
+                    {departement.nom}
                   </option>
                 ))}
               </select>
@@ -211,6 +217,9 @@ const UEManagement = () => {
         {ues.map((ue) => (
           <Card key={ue.id}>
             <CardContent className="pt-6">
+              <div className="text-xs text-muted-foreground mb-1">
+                Département: {getDepartementName(ue.discipline_id)}
+              </div>
               <h3 className="font-semibold text-lg mb-2">{ue.nom}</h3>
               <p className="text-sm text-muted-foreground mb-4">{ue.description}</p>
               <div className="flex gap-2">

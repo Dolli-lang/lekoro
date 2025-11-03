@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import UsersManagement from "@/components/admin/UsersManagement";
 import UEManagement from "@/components/admin/UEManagement";
 import CorrigesManagement from "@/components/admin/CorrigesManagement";
-import DisciplinesManagement from "@/components/admin/DisciplinesManagement";
+import UFRManagement from "@/components/admin/UFRManagement";
+import DepartementsManagement from "@/components/admin/DepartementsManagement";
 import AdminStats from "@/components/admin/AdminStats";
 import { Loader2 } from "lucide-react";
 
@@ -66,22 +67,35 @@ const AdminDashboard = () => {
 
         <AdminStats />
 
-        <Tabs defaultValue="disciplines" className="mt-8">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="disciplines">Disciplines</TabsTrigger>
+        <Tabs defaultValue="ufrs" className="mt-8">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="ufrs">UFRs</TabsTrigger>
+            <TabsTrigger value="departements">Départements</TabsTrigger>
             <TabsTrigger value="ues">UEs</TabsTrigger>
             <TabsTrigger value="corriges">Corrigés</TabsTrigger>
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="disciplines" className="mt-6">
+          <TabsContent value="ufrs" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Gestion des Disciplines</CardTitle>
-                <CardDescription>Ajoutez, modifiez ou supprimez des disciplines</CardDescription>
+                <CardTitle>Gestion des UFRs</CardTitle>
+                <CardDescription>Ajoutez, modifiez ou supprimez des UFRs (ex: SSMT)</CardDescription>
               </CardHeader>
               <CardContent>
-                <DisciplinesManagement />
+                <UFRManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="departements" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Gestion des Départements</CardTitle>
+                <CardDescription>Ajoutez, modifiez ou supprimez des départements ou filières (ex: Physique Chimie)</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DepartementsManagement />
               </CardContent>
             </Card>
           </TabsContent>

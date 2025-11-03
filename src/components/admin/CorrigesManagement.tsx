@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-interface Discipline {
+interface Departement {
   id: string;
   nom: string;
 }
@@ -18,7 +18,7 @@ interface UE {
   id: string;
   nom: string;
   discipline_id: string | null;
-  disciplines?: { nom: string };
+  departements?: { nom: string };
 }
 
 interface Corrige {
@@ -28,12 +28,12 @@ interface Corrige {
   image_urls: string[];
   ues: { 
     nom: string;
-    disciplines: { nom: string } | null;
+    departements: { nom: string } | null;
   };
 }
 
 const CorrigesManagement = () => {
-  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
+  const [departements, setDepartements] = useState<Departement[]>([]);
   const [ues, setUes] = useState<UE[]>([]);
   const [filteredUes, setFilteredUes] = useState<UE[]>([]);
   const [corriges, setCorriges] = useState<Corrige[]>([]);
@@ -50,21 +50,21 @@ const CorrigesManagement = () => {
   const { toast } = useToast();
 
   const fetchData = async () => {
-    const [disciplinesRes, uesRes, corrigesRes] = await Promise.all([
-      supabase.from("disciplines").select("id, nom").eq("visible", true).order("nom"),
-      supabase.from("ues").select("id, nom, discipline_id, disciplines(nom)").order("nom"),
-      supabase.from("corriges").select("*, ues(nom, disciplines(nom))").order("created_at", { ascending: false }),
+    const [departementsRes, uesRes, corrigesRes] = await Promise.all([
+      supabase.from("departements").select("id, nom").eq("visible", true).order("nom"),
+      supabase.from("ues").select("id, nom, discipline_id, departements(nom)").order("nom"),
+      supabase.from("corriges").select("*, ues(nom, departements(nom))").order("created_at", { ascending: false }),
     ]);
 
-    if (disciplinesRes.data) setDisciplines(disciplinesRes.data);
+    if (departementsRes.data) setDepartements(departementsRes.data);
     if (uesRes.data) setUes(uesRes.data as any);
     if (corrigesRes.data) setCorriges(corrigesRes.data as any);
     setLoading(false);
   };
 
-  const handleDisciplineChange = (disciplineId: string) => {
-    setFormData({ ...formData, discipline_id: disciplineId, ue_id: "" });
-    const filtered = ues.filter(ue => ue.discipline_id === disciplineId);
+  const handleDepartementChange = (departementId: string) => {
+    setFormData({ ...formData, discipline_id: departementId, ue_id: "" });
+    const filtered = ues.filter(ue => ue.discipline_id === departementId);
     setFilteredUes(filtered);
   };
 
@@ -164,15 +164,15 @@ const CorrigesManagement = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="discipline">Discipline</Label>
-              <Select value={formData.discipline_id} onValueChange={handleDisciplineChange}>
+              <Label htmlFor="departement">Département</Label>
+              <Select value={formData.discipline_id} onValueChange={handleDepartementChange}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner une discipline" />
+                  <SelectValue placeholder="Sélectionner un département" />
                 </SelectTrigger>
                 <SelectContent>
-                  {disciplines.map((discipline) => (
-                    <SelectItem key={discipline.id} value={discipline.id}>
-                      {discipline.nom}
+                  {departements.map((departement) => (
+                    <SelectItem key={departement.id} value={departement.id}>
+                      {departement.nom}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -245,7 +245,7 @@ const CorrigesManagement = () => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Discipline</TableHead>
+            <TableHead>Département</TableHead>
             <TableHead>UE</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Année</TableHead>
@@ -255,7 +255,7 @@ const CorrigesManagement = () => {
         <TableBody>
           {corriges.map((corrige) => (
             <TableRow key={corrige.id}>
-              <TableCell>{corrige.ues.disciplines?.nom || "N/A"}</TableCell>
+              <TableCell>{corrige.ues.departements?.nom || "N/A"}</TableCell>
               <TableCell>{corrige.ues.nom}</TableCell>
               <TableCell>{corrige.type}</TableCell>
               <TableCell>{corrige.annee}</TableCell>

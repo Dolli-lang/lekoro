@@ -6,11 +6,19 @@ import { BookOpen, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface Discipline {
+interface UFR {
   id: string;
   nom: string;
   description: string | null;
   image_url: string | null;
+}
+
+interface Departement {
+  id: string;
+  nom: string;
+  description: string | null;
+  image_url: string | null;
+  ufr_id: string | null;
 }
 
 interface UE {
@@ -28,8 +36,10 @@ interface Corrige {
 }
 
 const UESelection = () => {
-  const [disciplines, setDisciplines] = useState<Discipline[]>([]);
-  const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
+  const [ufrs, setUfrs] = useState<UFR[]>([]);
+  const [selectedUFR, setSelectedUFR] = useState<UFR | null>(null);
+  const [departements, setDepartements] = useState<Departement[]>([]);
+  const [selectedDepartement, setSelectedDepartement] = useState<Departement | null>(null);
   const [ues, setUes] = useState<UE[]>([]);
   const [selectedUE, setSelectedUE] = useState<UE | null>(null);
   const [selectedType, setSelectedType] = useState<string>("");
@@ -41,30 +51,47 @@ const UESelection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDisciplines = async () => {
+    const fetchUFRs = async () => {
       const { data, error } = await supabase
-        .from("disciplines")
+        .from("ufrs")
         .select("*")
         .eq("visible", true)
         .order("nom");
 
       if (!error && data) {
-        setDisciplines(data);
+        setUfrs(data);
       }
       setLoading(false);
     };
 
-    fetchDisciplines();
+    fetchUFRs();
   }, []);
 
-  const handleDisciplineClick = async (discipline: Discipline) => {
-    setSelectedDiscipline(discipline);
+  const handleUFRClick = async (ufr: UFR) => {
+    setSelectedUFR(ufr);
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("departements")
+      .select("*")
+      .eq("ufr_id", ufr.id)
+      .eq("visible", true)
+      .order("nom");
+
+    if (!error && data) {
+      setDepartements(data);
+    }
+    setLoading(false);
+  };
+
+  const handleDepartementClick = async (departement: Departement) => {
+    setSelectedDepartement(departement);
     setLoading(true);
 
     const { data, error } = await supabase
       .from("ues")
       .select("*")
-      .eq("discipline_id", discipline.id)
+      .eq("discipline_id", departement.id)
       .eq("visible", true)
       .order("nom");
 
@@ -74,8 +101,13 @@ const UESelection = () => {
     setLoading(false);
   };
 
-  const handleBackToDisciplines = () => {
-    setSelectedDiscipline(null);
+  const handleBackToUFRs = () => {
+    setSelectedUFR(null);
+    setDepartements([]);
+  };
+
+  const handleBackToDepartements = () => {
+    setSelectedDepartement(null);
     setUes([]);
   };
 
@@ -135,47 +167,88 @@ const UESelection = () => {
 
   return (
     <>
-      {!selectedDiscipline ? (
+      {!selectedUFR ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {disciplines.map((discipline) => (
+          {ufrs.map((ufr) => (
             <Card 
-              key={discipline.id} 
+              key={ufr.id} 
               className="cursor-pointer hover:shadow-lg transition-shadow" 
-              onClick={() => handleDisciplineClick(discipline)}
+              onClick={() => handleUFRClick(ufr)}
             >
               <CardHeader>
-                {discipline.image_url && (
+                {ufr.image_url && (
                   <img 
-                    src={discipline.image_url} 
-                    alt={discipline.nom}
+                    src={ufr.image_url} 
+                    alt={ufr.nom}
                     className="w-full h-32 object-cover rounded-md mb-3"
                   />
                 )}
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
-                  {discipline.nom}
+                  {ufr.nom}
                 </CardTitle>
-                {discipline.description && <CardDescription>{discipline.description}</CardDescription>}
+                {ufr.description && <CardDescription>{ufr.description}</CardDescription>}
               </CardHeader>
               <CardContent>
                 <Button variant="outline" className="w-full">
-                  Voir les UEs
+                  Voir les départements
                 </Button>
               </CardContent>
             </Card>
           ))}
         </div>
+      ) : !selectedDepartement ? (
+        <div>
+          <Button 
+            variant="ghost" 
+            onClick={handleBackToUFRs}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Retour aux UFRs
+          </Button>
+          <h2 className="text-2xl font-bold mb-4">{selectedUFR.nom}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {departements.map((departement) => (
+              <Card 
+                key={departement.id} 
+                className="cursor-pointer hover:shadow-lg transition-shadow" 
+                onClick={() => handleDepartementClick(departement)}
+              >
+                <CardHeader>
+                  {departement.image_url && (
+                    <img 
+                      src={departement.image_url} 
+                      alt={departement.nom}
+                      className="w-full h-32 object-cover rounded-md mb-3"
+                    />
+                  )}
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5" />
+                    {departement.nom}
+                  </CardTitle>
+                  {departement.description && <CardDescription>{departement.description}</CardDescription>}
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" className="w-full">
+                    Voir les UEs
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
       ) : (
         <div>
           <Button 
             variant="ghost" 
-            onClick={handleBackToDisciplines}
+            onClick={handleBackToDepartements}
             className="mb-4"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux disciplines
+            Retour aux départements
           </Button>
-          <h2 className="text-2xl font-bold mb-4">{selectedDiscipline.nom}</h2>
+          <h2 className="text-2xl font-bold mb-4">{selectedDepartement.nom}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ues.map((ue) => (
               <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleUEClick(ue)}>

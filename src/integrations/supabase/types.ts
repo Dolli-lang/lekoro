@@ -84,13 +84,14 @@ export type Database = {
           },
         ]
       }
-      disciplines: {
+      departements: {
         Row: {
           created_at: string
           description: string | null
           id: string
           image_url: string | null
           nom: string
+          ufr_id: string | null
           updated_at: string
           visible: boolean
         }
@@ -100,6 +101,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           nom: string
+          ufr_id?: string | null
           updated_at?: string
           visible?: boolean
         }
@@ -109,10 +111,19 @@ export type Database = {
           id?: string
           image_url?: string | null
           nom?: string
+          ufr_id?: string | null
           updated_at?: string
           visible?: boolean
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "departements_ufr_id_fkey"
+            columns: ["ufr_id"]
+            isOneToOne: false
+            referencedRelation: "ufrs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -174,10 +185,40 @@ export type Database = {
             foreignKeyName: "ues_discipline_id_fkey"
             columns: ["discipline_id"]
             isOneToOne: false
-            referencedRelation: "disciplines"
+            referencedRelation: "departements"
             referencedColumns: ["id"]
           },
         ]
+      }
+      ufrs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          nom: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          nom: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          nom?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
