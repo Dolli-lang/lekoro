@@ -20,7 +20,6 @@ export const Footer = () => {
           <div>
             <h3 className="font-semibold mb-3">Navigation</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/ues" className="hover:text-primary transition-colors">UEs</Link></li>
               <li><Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link></li>
               <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
             </ul>

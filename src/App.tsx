@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Auth from "./pages/Auth";
-import UEList from "./pages/UEList";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Confidentialite from "./pages/Confidentialite";
@@ -44,7 +43,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<RootRedirect />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/ues" element={<UEList />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/confidentialite" element={<Confidentialite />} />

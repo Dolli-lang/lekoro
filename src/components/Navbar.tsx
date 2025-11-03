@@ -34,10 +34,6 @@ export const Navbar = () => {
         <div className="flex items-center gap-4">
           {user ? (
             <>
-              <Link to="/ues">
-                <Button variant="ghost">UEs</Button>
-              </Link>
-              
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full">
