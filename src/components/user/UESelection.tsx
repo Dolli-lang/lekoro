@@ -55,23 +55,32 @@ const UESelection = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUFRs = async () => {
+    const fetchDepartements = async () => {
       if (profile?.ufr_id) {
-        const { data, error } = await supabase
+        const { data: ufrData } = await supabase
           .from("ufrs")
           .select("*")
           .eq("id", profile.ufr_id)
           .eq("visible", true)
           .maybeSingle();
 
+        if (ufrData) {
+          setSelectedUFR(ufrData);
+        }
+
+        const { data, error } = await supabase
+          .from("departements")
+          .select("*")
+          .eq("ufr_id", profile.ufr_id)
+          .eq("visible", true)
+          .order("nom");
+
         if (!error && data) {
-          setUfrs([data]);
-          // Charger automatiquement les départements de l'UFR
-          handleUFRClick(data);
+          setDepartements(data);
         } else if (error) {
           toast({
             title: "Erreur",
-            description: "Impossible de charger votre UFR",
+            description: "Impossible de charger les départements",
             variant: "destructive",
           });
         }
@@ -80,7 +89,7 @@ const UESelection = () => {
     };
 
     if (profile) {
-      fetchUFRs();
+      fetchDepartements();
     }
   }, [profile]);
 
@@ -186,7 +195,9 @@ const UESelection = () => {
     <>
       {!selectedDepartement ? (
         <div>
-          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg border-l-4 border-primary">{selectedUFR?.nom}</h2>
+          <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg border-l-4 border-primary">
+            {selectedUFR?.nom || "Sélectionnez un département"}
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {departements.map((departement) => (
               <Card 
