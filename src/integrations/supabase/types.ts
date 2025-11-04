@@ -131,6 +131,7 @@ export type Database = {
           created_at: string
           full_name: string
           id: string
+          ufr_id: string | null
           updated_at: string
         }
         Insert: {
@@ -138,6 +139,7 @@ export type Database = {
           created_at?: string
           full_name: string
           id: string
+          ufr_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -145,9 +147,18 @@ export type Database = {
           created_at?: string
           full_name?: string
           id?: string
+          ufr_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_ufr_id_fkey"
+            columns: ["ufr_id"]
+            isOneToOne: false
+            referencedRelation: "ufrs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ues: {
         Row: {
