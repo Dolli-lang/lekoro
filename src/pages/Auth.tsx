@@ -6,14 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
 
 const signUpSchema = z.object({
   fullName: z.string().trim().min(2, "Le nom doit contenir au moins 2 caractères").max(100),
   email: z.string().trim().email("Email invalide").max(255),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères").max(100),
+  ufrId: z.string().min(1, "Veuillez sélectionner un UFR"),
 });
 
 const signInSchema = z.object({
@@ -26,16 +29,25 @@ const Auth = () => {
   const mode = searchParams.get("mode") || "login";
   const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
   
-  const [signUpData, setSignUpData] = useState({ fullName: "", email: "", password: "" });
+  const [signUpData, setSignUpData] = useState({ fullName: "", email: "", password: "", ufrId: "" });
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [resetEmail, setResetEmail] = useState("");
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [ufrs, setUfrs] = useState<Array<{ id: string; nom: string }>>([]);
   
   const { user, isAdmin, signUp, signIn, resetPassword } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUfrs = async () => {
+      const { data } = await supabase.from("ufrs").select("id, nom").eq("visible", true);
+      if (data) setUfrs(data);
+    };
+    fetchUfrs();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -54,7 +66,7 @@ const Auth = () => {
     try {
       signUpSchema.parse(signUpData);
       setLoading(true);
-      const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName);
+      const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName, signUpData.ufrId);
       if (!error) {
         setShowEmailConfirmation(true);
       }
@@ -242,6 +254,26 @@ const Auth = () => {
                         disabled={loading}
                       />
                       {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-ufr">UFR</Label>
+                      <Select
+                        value={signUpData.ufrId}
+                        onValueChange={(value) => setSignUpData({ ...signUpData, ufrId: value })}
+                        disabled={loading}
+                      >
+                        <SelectTrigger id="signup-ufr">
+                          <SelectValue placeholder="Sélectionnez votre UFR" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ufrs.map((ufr) => (
+                            <SelectItem key={ufr.id} value={ufr.id}>
+                              {ufr.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.ufrId && <p className="text-sm text-destructive">{errors.ufrId}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>

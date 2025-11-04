@@ -7,6 +7,7 @@ interface Profile {
   id: string;
   full_name: string;
   avatar_url: string | null;
+  ufr_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -81,7 +82,7 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, ufrId: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -92,6 +93,7 @@ export const useAuth = () => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName,
+            ufr_id: ufrId,
           },
         },
       });

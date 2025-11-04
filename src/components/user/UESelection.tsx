@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookOpen, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface UFR {
   id: string;
@@ -36,6 +38,8 @@ interface Corrige {
 }
 
 const UESelection = () => {
+  const { profile } = useAuth();
+  const { toast } = useToast();
   const [ufrs, setUfrs] = useState<UFR[]>([]);
   const [selectedUFR, setSelectedUFR] = useState<UFR | null>(null);
   const [departements, setDepartements] = useState<Departement[]>([]);
@@ -52,20 +56,33 @@ const UESelection = () => {
 
   useEffect(() => {
     const fetchUFRs = async () => {
-      const { data, error } = await supabase
-        .from("ufrs")
-        .select("*")
-        .eq("visible", true)
-        .order("nom");
+      if (profile?.ufr_id) {
+        const { data, error } = await supabase
+          .from("ufrs")
+          .select("*")
+          .eq("id", profile.ufr_id)
+          .eq("visible", true)
+          .maybeSingle();
 
-      if (!error && data) {
-        setUfrs(data);
+        if (!error && data) {
+          setUfrs([data]);
+          // Charger automatiquement les départements de l'UFR
+          handleUFRClick(data);
+        } else if (error) {
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger votre UFR",
+            variant: "destructive",
+          });
+        }
       }
       setLoading(false);
     };
 
-    fetchUFRs();
-  }, []);
+    if (profile) {
+      fetchUFRs();
+    }
+  }, [profile]);
 
   const handleUFRClick = async (ufr: UFR) => {
     setSelectedUFR(ufr);
@@ -167,52 +184,14 @@ const UESelection = () => {
 
   return (
     <>
-      {!selectedUFR ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ufrs.map((ufr) => (
-            <Card 
-              key={ufr.id} 
-              className="cursor-pointer hover:shadow-lg transition-shadow" 
-              onClick={() => handleUFRClick(ufr)}
-            >
-              <CardHeader>
-                {ufr.image_url && (
-                  <img 
-                    src={ufr.image_url} 
-                    alt={ufr.nom}
-                    className="w-full h-32 object-cover rounded-md mb-3"
-                  />
-                )}
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" />
-                  {ufr.nom}
-                </CardTitle>
-                {ufr.description && <CardDescription>{ufr.description}</CardDescription>}
-              </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="w-full">
-                  Voir les départements
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : !selectedDepartement ? (
+      {!selectedDepartement ? (
         <div>
-          <Button 
-            variant="ghost" 
-            onClick={handleBackToUFRs}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour aux UFRs
-          </Button>
-          <h2 className="text-2xl font-bold mb-4">{selectedUFR.nom}</h2>
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-primary/10 to-accent/10 p-4 rounded-lg border-l-4 border-primary">{selectedUFR?.nom}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {departements.map((departement) => (
               <Card 
                 key={departement.id} 
-                className="cursor-pointer hover:shadow-lg transition-shadow" 
+                className="cursor-pointer hover:shadow-lg transition-shadow hover:border-primary/50 bg-gradient-to-br from-background to-primary/5" 
                 onClick={() => handleDepartementClick(departement)}
               >
                 <CardHeader>
@@ -248,10 +227,10 @@ const UESelection = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Retour aux départements
           </Button>
-          <h2 className="text-2xl font-bold mb-4">{selectedDepartement.nom}</h2>
+          <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-accent/10 to-primary/10 p-4 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ues.map((ue) => (
-              <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleUEClick(ue)}>
+              <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-shadow hover:border-accent/50 bg-gradient-to-br from-background to-accent/5" onClick={() => handleUEClick(ue)}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <FileText className="w-5 h-5" />
