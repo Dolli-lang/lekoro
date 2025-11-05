@@ -32,16 +32,14 @@ export const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
-          {user && (
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate(isAdmin ? "/admin" : "/dashboard")}
-              className="gap-2"
-            >
-              <Home className="h-4 w-4" />
-              <span className="hidden sm:inline">Accueil</span>
-            </Button>
-          )}
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/")}
+            className="gap-2"
+          >
+            <Home className="h-4 w-4" />
+            <span className="hidden sm:inline">Accueil</span>
+          </Button>
           {user ? (
             <>
               <DropdownMenu>
