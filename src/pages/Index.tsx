@@ -1,12 +1,32 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { BookOpen, Calculator, Code, GraduationCap } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import heroBg from "@/assets/hero-bg.jpg";
 
 const Index = () => {
+  const [heroImageUrl, setHeroImageUrl] = useState(heroBg);
+
+  useEffect(() => {
+    const fetchHeroImage = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "hero_image_url")
+        .single();
+
+      if (data?.value) {
+        setHeroImageUrl(data.value);
+      }
+    };
+
+    fetchHeroImage();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -14,7 +34,7 @@ const Index = () => {
       {/* Hero Section */}
       <section 
         className="relative py-24 md:py-32 bg-cover bg-center"
-        style={{ backgroundImage: `url(${heroBg})` }}
+        style={{ backgroundImage: `url(${heroImageUrl})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 to-primary/70" />
         <div className="container relative z-10 text-center text-primary-foreground">

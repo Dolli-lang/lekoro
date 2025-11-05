@@ -11,6 +11,7 @@ import CorrigesManagement from "@/components/admin/CorrigesManagement";
 import UFRManagement from "@/components/admin/UFRManagement";
 import DepartementsManagement from "@/components/admin/DepartementsManagement";
 import AdminStats from "@/components/admin/AdminStats";
+import { HeroImageManagement } from "@/components/admin/HeroImageManagement";
 import { Loader2 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -67,14 +68,19 @@ const AdminDashboard = () => {
 
         <AdminStats />
 
-        <Tabs defaultValue="ufrs" className="mt-8">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="hero" className="mt-8">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="hero">Accueil</TabsTrigger>
             <TabsTrigger value="ufrs">UFRs</TabsTrigger>
             <TabsTrigger value="departements">Départements</TabsTrigger>
             <TabsTrigger value="ues">UEs</TabsTrigger>
             <TabsTrigger value="corriges">Corrigés</TabsTrigger>
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="hero" className="mt-6">
+            <HeroImageManagement />
+          </TabsContent>
 
           <TabsContent value="ufrs" className="mt-6">
             <Card>
