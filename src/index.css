@@ -50,6 +50,16 @@ All colors MUST be HSL.
     --highlight-blue: 217 91% 95%;
     --highlight-yellow: 43 96% 95%;
     --highlight-green: 142 71% 95%;
+    --highlight-purple: 270 80% 95%;
+    --highlight-orange: 25 95% 95%;
+    --highlight-teal: 180 70% 95%;
+    
+    --gradient-blue: linear-gradient(135deg, hsl(217 91% 95%), hsl(217 91% 85%));
+    --gradient-yellow: linear-gradient(135deg, hsl(43 96% 95%), hsl(43 96% 85%));
+    --gradient-green: linear-gradient(135deg, hsl(142 71% 95%), hsl(142 71% 85%));
+    --gradient-purple: linear-gradient(135deg, hsl(270 80% 95%), hsl(270 80% 85%));
+    --gradient-orange: linear-gradient(135deg, hsl(25 95% 95%), hsl(25 95% 85%));
+    --gradient-teal: linear-gradient(135deg, hsl(180 70% 95%), hsl(180 70% 85%));
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 215 25% 27%;
@@ -102,6 +112,16 @@ All colors MUST be HSL.
     --highlight-blue: 217 91% 25%;
     --highlight-yellow: 43 96% 25%;
     --highlight-green: 142 71% 25%;
+    --highlight-purple: 270 80% 25%;
+    --highlight-orange: 25 95% 25%;
+    --highlight-teal: 180 70% 25%;
+    
+    --gradient-blue: linear-gradient(135deg, hsl(217 91% 25%), hsl(217 91% 35%));
+    --gradient-yellow: linear-gradient(135deg, hsl(43 96% 25%), hsl(43 96% 35%));
+    --gradient-green: linear-gradient(135deg, hsl(142 71% 25%), hsl(142 71% 35%));
+    --gradient-purple: linear-gradient(135deg, hsl(270 80% 25%), hsl(270 80% 35%));
+    --gradient-orange: linear-gradient(135deg, hsl(25 95% 25%), hsl(25 95% 35%));
+    --gradient-teal: linear-gradient(135deg, hsl(180 70% 25%), hsl(180 70% 35%));
 
     --sidebar-background: 215 27% 20%;
     --sidebar-foreground: 210 20% 98%;

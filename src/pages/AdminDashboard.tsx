@@ -83,9 +83,9 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="ufrs" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-primary shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-blue))] to-card">
               <CardHeader>
-                <CardTitle>Gestion des UFRs</CardTitle>
+                <CardTitle className="text-primary">Gestion des UFRs</CardTitle>
                 <CardDescription>Ajoutez, modifiez ou supprimez des UFRs (ex: SSMT)</CardDescription>
               </CardHeader>
               <CardContent>
@@ -95,9 +95,9 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="departements" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-[hsl(var(--accent))] shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-yellow))] to-card">
               <CardHeader>
-                <CardTitle>Gestion des Départements</CardTitle>
+                <CardTitle className="text-[hsl(var(--accent))]">Gestion des Départements</CardTitle>
                 <CardDescription>Ajoutez, modifiez ou supprimez des départements ou filières (ex: Physique Chimie)</CardDescription>
               </CardHeader>
               <CardContent>
@@ -107,9 +107,9 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="ues" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-green-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-green))] to-card">
               <CardHeader>
-                <CardTitle>Gestion des UEs</CardTitle>
+                <CardTitle className="text-green-600 dark:text-green-400">Gestion des UEs</CardTitle>
                 <CardDescription>Ajoutez, modifiez ou supprimez des unités d'enseignement</CardDescription>
               </CardHeader>
               <CardContent>
@@ -119,9 +119,9 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="corriges" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-purple-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-purple))] to-card">
               <CardHeader>
-                <CardTitle>Gestion des corrigés</CardTitle>
+                <CardTitle className="text-purple-600 dark:text-purple-400">Gestion des corrigés</CardTitle>
                 <CardDescription>Ajoutez des TD et examens pour les UEs</CardDescription>
               </CardHeader>
               <CardContent>
@@ -131,9 +131,9 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-orange-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-orange))] to-card">
               <CardHeader>
-                <CardTitle>Gestion des utilisateurs</CardTitle>
+                <CardTitle className="text-orange-600 dark:text-orange-400">Gestion des utilisateurs</CardTitle>
                 <CardDescription>Gérez les utilisateurs et leurs rôles</CardDescription>
               </CardHeader>
               <CardContent>

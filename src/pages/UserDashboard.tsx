@@ -50,9 +50,9 @@ const UserDashboard = () => {
           </TabsList>
 
           <TabsContent value="ues" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-primary shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-blue))] to-card animate-fade-in">
               <CardHeader>
-              <CardTitle>Disciplines et UEs</CardTitle>
+              <CardTitle className="text-primary">Disciplines et UEs</CardTitle>
                 <CardDescription>Sélectionnez un UFR, puis un département, puis une UE pour accéder aux TD et examens</CardDescription>
               </CardHeader>
               <CardContent>
@@ -62,9 +62,9 @@ const UserDashboard = () => {
           </TabsContent>
 
           <TabsContent value="history" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-[hsl(var(--accent))] shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-yellow))] to-card animate-fade-in">
               <CardHeader>
-                <CardTitle>Historique de consultation</CardTitle>
+                <CardTitle className="text-[hsl(var(--accent))]">Historique de consultation</CardTitle>
                 <CardDescription>Corrigés récemment consultés</CardDescription>
               </CardHeader>
               <CardContent>
@@ -74,9 +74,9 @@ const UserDashboard = () => {
           </TabsContent>
 
           <TabsContent value="profile" className="mt-6">
-            <Card>
+            <Card className="border-l-4 border-l-teal-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-teal))] to-card animate-fade-in">
               <CardHeader>
-                <CardTitle>Mon profil</CardTitle>
+                <CardTitle className="text-teal-600 dark:text-teal-400">Mon profil</CardTitle>
                 <CardDescription>Gérez vos informations personnelles</CardDescription>
               </CardHeader>
               <CardContent>
