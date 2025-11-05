@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { User, LogOut, LayoutDashboard } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Home } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +32,16 @@ export const Navbar = () => {
         </Link>
 
         <div className="flex items-center gap-4">
+          {user && (
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate(isAdmin ? "/admin" : "/dashboard")}
+              className="gap-2"
+            >
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Accueil</span>
+            </Button>
+          )}
           {user ? (
             <>
               <DropdownMenu>
