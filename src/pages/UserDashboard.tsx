@@ -43,10 +43,25 @@ const UserDashboard = () => {
         </div>
 
         <Tabs defaultValue="ues" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="ues">UEs & Corrigés</TabsTrigger>
-            <TabsTrigger value="history">Historique</TabsTrigger>
-            <TabsTrigger value="profile">Profil</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 bg-secondary/50 p-1 rounded-lg">
+            <TabsTrigger 
+              value="ues"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              UEs & Corrigés
+            </TabsTrigger>
+            <TabsTrigger 
+              value="history"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              Historique
+            </TabsTrigger>
+            <TabsTrigger 
+              value="profile"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              Profil
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="ues" className="mt-6">

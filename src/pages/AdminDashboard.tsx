@@ -69,13 +69,43 @@ const AdminDashboard = () => {
         <AdminStats />
 
         <Tabs defaultValue="hero" className="mt-8">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="hero">Accueil</TabsTrigger>
-            <TabsTrigger value="ufrs">UFRs</TabsTrigger>
-            <TabsTrigger value="departements">Départements</TabsTrigger>
-            <TabsTrigger value="ues">UEs</TabsTrigger>
-            <TabsTrigger value="corriges">Corrigés</TabsTrigger>
-            <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-secondary/50 p-1 rounded-lg gap-1">
+            <TabsTrigger 
+              value="hero"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              Accueil
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ufrs"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              UFRs
+            </TabsTrigger>
+            <TabsTrigger 
+              value="departements"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              Départements
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ues"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              UEs
+            </TabsTrigger>
+            <TabsTrigger 
+              value="corriges"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              Corrigés
+            </TabsTrigger>
+            <TabsTrigger 
+              value="users"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+            >
+              Utilisateurs
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="hero" className="mt-6">

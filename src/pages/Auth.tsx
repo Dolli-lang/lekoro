@@ -17,6 +17,7 @@ const signUpSchema = z.object({
   email: z.string().trim().email("Email invalide").max(255),
   password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères").max(100),
   ufrId: z.string().min(1, "Veuillez sélectionner un UFR"),
+  departementId: z.string().min(1, "Veuillez sélectionner un département"),
 });
 
 const signInSchema = z.object({
@@ -29,7 +30,7 @@ const Auth = () => {
   const mode = searchParams.get("mode") || "login";
   const [activeTab, setActiveTab] = useState(mode === "signup" ? "signup" : "login");
   
-  const [signUpData, setSignUpData] = useState({ fullName: "", email: "", password: "", ufrId: "" });
+  const [signUpData, setSignUpData] = useState({ fullName: "", email: "", password: "", ufrId: "", departementId: "" });
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [resetEmail, setResetEmail] = useState("");
   const [showResetPassword, setShowResetPassword] = useState(false);
@@ -37,6 +38,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [ufrs, setUfrs] = useState<Array<{ id: string; nom: string }>>([]);
+  const [departements, setDepartements] = useState<Array<{ id: string; nom: string }>>([]);
   
   const { user, isAdmin, signUp, signIn, resetPassword } = useAuth();
   const navigate = useNavigate();
@@ -48,6 +50,27 @@ const Auth = () => {
     };
     fetchUfrs();
   }, []);
+
+  useEffect(() => {
+    const fetchDepartements = async () => {
+      if (signUpData.ufrId) {
+        const { data } = await supabase
+          .from("departements")
+          .select("id, nom")
+          .eq("ufr_id", signUpData.ufrId)
+          .eq("visible", true);
+        if (data) {
+          setDepartements(data);
+        } else {
+          setDepartements([]);
+        }
+      } else {
+        setDepartements([]);
+        setSignUpData({ ...signUpData, departementId: "" });
+      }
+    };
+    fetchDepartements();
+  }, [signUpData.ufrId]);
 
   useEffect(() => {
     if (user) {
@@ -66,7 +89,7 @@ const Auth = () => {
     try {
       signUpSchema.parse(signUpData);
       setLoading(true);
-      const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName, signUpData.ufrId);
+      const { error } = await signUp(signUpData.email, signUpData.password, signUpData.fullName, signUpData.ufrId, signUpData.departementId);
       if (!error) {
         setShowEmailConfirmation(true);
       }
@@ -259,7 +282,7 @@ const Auth = () => {
                       <Label htmlFor="signup-ufr">UFR</Label>
                       <Select
                         value={signUpData.ufrId}
-                        onValueChange={(value) => setSignUpData({ ...signUpData, ufrId: value })}
+                        onValueChange={(value) => setSignUpData({ ...signUpData, ufrId: value, departementId: "" })}
                         disabled={loading}
                       >
                         <SelectTrigger id="signup-ufr">
@@ -274,6 +297,26 @@ const Auth = () => {
                         </SelectContent>
                       </Select>
                       {errors.ufrId && <p className="text-sm text-destructive">{errors.ufrId}</p>}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-departement">Faculté / Département</Label>
+                      <Select
+                        value={signUpData.departementId}
+                        onValueChange={(value) => setSignUpData({ ...signUpData, departementId: value })}
+                        disabled={loading || !signUpData.ufrId}
+                      >
+                        <SelectTrigger id="signup-departement">
+                          <SelectValue placeholder="Sélectionnez votre faculté" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {departements.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                              {dept.nom}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.departementId && <p className="text-sm text-destructive">{errors.departementId}</p>}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>

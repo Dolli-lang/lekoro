@@ -82,7 +82,7 @@ export const useAuth = () => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, ufrId: string) => {
+  const signUp = async (email: string, password: string, fullName: string, ufrId: string, departementId: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
@@ -94,6 +94,7 @@ export const useAuth = () => {
           data: {
             full_name: fullName,
             ufr_id: ufrId,
+            departement_id: departementId,
           },
         },
       });
