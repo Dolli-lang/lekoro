@@ -129,6 +129,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          departement_id: string | null
           full_name: string
           id: string
           ufr_id: string | null
@@ -137,6 +138,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          departement_id?: string | null
           full_name: string
           id: string
           ufr_id?: string | null
@@ -145,12 +147,20 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          departement_id?: string | null
           full_name?: string
           id?: string
           ufr_id?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "profiles_departement_id_fkey"
+            columns: ["departement_id"]
+            isOneToOne: false
+            referencedRelation: "departements"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "profiles_ufr_id_fkey"
             columns: ["ufr_id"]
