@@ -117,7 +117,12 @@ const CorrigesManagement = () => {
 
       const { error } = await supabase
         .from("corriges")
-        .insert([{ ...formData, image_urls: imageUrls }]);
+        .insert([{ 
+          ue_id: formData.ue_id,
+          type: formData.type,
+          annee: formData.annee,
+          image_urls: imageUrls 
+        }]);
 
       if (error) throw error;
 
