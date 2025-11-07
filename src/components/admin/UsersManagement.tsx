@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2, Shield, Loader2 } from "lucide-react";
+import { Trash2, Shield, Loader2, Ban } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -59,6 +59,32 @@ const UsersManagement = () => {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) return;
+
+    try {
+      // Delete from profiles (will cascade to other tables)
+      const { error } = await supabase
+        .from("profiles")
+        .delete()
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Utilisateur supprimé",
+      });
+      fetchProfiles();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'utilisateur",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center py-8">
@@ -93,13 +119,25 @@ const UsersManagement = () => {
               <TableCell>{profile.id}</TableCell>
               <TableCell>{new Date(profile.created_at).toLocaleDateString()}</TableCell>
               <TableCell className="text-right">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleMakeAdmin(profile.id)}
-                >
-                  <Shield className="w-4 h-4" />
-                </Button>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleMakeAdmin(profile.id)}
+                    title="Promouvoir admin"
+                  >
+                    <Shield className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteUser(profile.id)}
+                    className="text-destructive hover:text-destructive"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

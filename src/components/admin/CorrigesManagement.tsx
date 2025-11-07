@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Loader2 } from "lucide-react";
+import { Plus, Loader2, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -40,6 +40,8 @@ const CorrigesManagement = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     discipline_id: "",
     ue_id: "",
@@ -144,6 +146,36 @@ const CorrigesManagement = () => {
     }
     
     setUploading(false);
+  };
+
+  const handleDelete = async (corrigeId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce corrigé ?")) return;
+
+    try {
+      const { error } = await supabase
+        .from("corriges")
+        .delete()
+        .eq("id", corrigeId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Succès",
+        description: "Corrigé supprimé",
+      });
+      fetchData();
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer le corrigé",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleViewImages = (imageUrls: string[]) => {
+    setSelectedImages(imageUrls);
+    setViewDialogOpen(true);
   };
 
   if (loading) {
@@ -255,6 +287,7 @@ const CorrigesManagement = () => {
             <TableHead>Type</TableHead>
             <TableHead>Année</TableHead>
             <TableHead>Images</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -265,16 +298,48 @@ const CorrigesManagement = () => {
               <TableCell>{corrige.type}</TableCell>
               <TableCell>{corrige.annee}</TableCell>
               <TableCell>
-                <div className="flex gap-1 flex-wrap">
-                  {corrige.image_urls?.map((url, idx) => (
-                    <img key={idx} src={url} alt={`Corrigé ${idx + 1}`} className="h-12 w-12 object-cover rounded" />
-                  ))}
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleViewImages(corrige.image_urls)}
+                  className="gap-2"
+                >
+                  <Eye className="w-4 h-4" />
+                  Voir ({corrige.image_urls?.length || 0})
+                </Button>
+              </TableCell>
+              <TableCell className="text-right">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDelete(corrige.id)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+
+      <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Images du corrigé</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4">
+            {selectedImages.map((url, idx) => (
+              <img
+                key={idx}
+                src={url}
+                alt={`Corrigé ${idx + 1}`}
+                className="w-full rounded-lg border"
+              />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
