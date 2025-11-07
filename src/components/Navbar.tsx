@@ -24,11 +24,8 @@ export const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-3 transition-transform hover:scale-105">
+        <Link to="/" className="flex items-center transition-transform hover:scale-105">
           <img src={logo} alt="Le Koro" className="h-10 w-10" />
-          <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-            Le Koro
-          </span>
         </Link>
 
         <div className="flex items-center gap-4">
