@@ -45,36 +45,40 @@ export type Database = {
       }
       corriges: {
         Row: {
-          annee: string
           created_at: string
+          exercice_id: string | null
           id: string
           image_urls: string[] | null
-          type: string
           ue_id: string
           updated_at: string
           visible: boolean
         }
         Insert: {
-          annee: string
           created_at?: string
+          exercice_id?: string | null
           id?: string
           image_urls?: string[] | null
-          type: string
           ue_id: string
           updated_at?: string
           visible?: boolean
         }
         Update: {
-          annee?: string
           created_at?: string
+          exercice_id?: string | null
           id?: string
           image_urls?: string[] | null
-          type?: string
           ue_id?: string
           updated_at?: string
           visible?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "corriges_exercice_id_fkey"
+            columns: ["exercice_id"]
+            isOneToOne: false
+            referencedRelation: "exercices"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "corriges_ue_id_fkey"
             columns: ["ue_id"]
@@ -121,6 +125,50 @@ export type Database = {
             columns: ["ufr_id"]
             isOneToOne: false
             referencedRelation: "ufrs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercices: {
+        Row: {
+          annee: string
+          created_at: string
+          description: string | null
+          id: string
+          numero: number
+          type: string
+          ue_id: string
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          annee: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          numero: number
+          type: string
+          ue_id: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          annee?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          numero?: number
+          type?: string
+          ue_id?: string
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercices_ue_id_fkey"
+            columns: ["ue_id"]
+            isOneToOne: false
+            referencedRelation: "ues"
             referencedColumns: ["id"]
           },
         ]

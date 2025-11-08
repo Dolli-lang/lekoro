@@ -30,10 +30,16 @@ interface UE {
   discipline_id: string | null;
 }
 
-interface Corrige {
+interface Exercice {
   id: string;
+  numero: number;
   type: string;
   annee: string;
+  description: string | null;
+}
+
+interface Corrige {
+  id: string;
   image_urls: string[];
 }
 
@@ -48,9 +54,12 @@ const UESelection = () => {
   const [selectedUE, setSelectedUE] = useState<UE | null>(null);
   const [selectedType, setSelectedType] = useState<string>("");
   const [selectedAnnee, setSelectedAnnee] = useState<string>("");
+  const [selectedExercice, setSelectedExercice] = useState<Exercice | null>(null);
+  const [exercices, setExercices] = useState<Exercice[]>([]);
   const [corriges, setCorriges] = useState<Corrige[]>([]);
   const [annees, setAnnees] = useState<string[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [exercicesDialogOpen, setExercicesDialogOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -141,23 +150,25 @@ const UESelection = () => {
     setSelectedUE(ue);
     setSelectedType("");
     setSelectedAnnee("");
+    setExercices([]);
     setDialogOpen(true);
   };
 
   const handleTypeSelect = async (type: string) => {
     setSelectedType(type);
     setSelectedAnnee("");
+    setExercices([]);
     
     if (selectedUE) {
       const { data } = await supabase
-        .from("corriges")
+        .from("exercices")
         .select("annee")
         .eq("ue_id", selectedUE.id)
         .eq("type", type)
         .eq("visible", true);
 
       if (data) {
-        const uniqueAnnees = [...new Set(data.map(c => c.annee))];
+        const uniqueAnnees = [...new Set(data.map(e => e.annee))];
         setAnnees(uniqueAnnees.sort().reverse());
       }
     }
@@ -168,18 +179,43 @@ const UESelection = () => {
     
     if (selectedUE && selectedType) {
       const { data } = await supabase
-        .from("corriges")
+        .from("exercices")
         .select("*")
         .eq("ue_id", selectedUE.id)
         .eq("type", selectedType)
         .eq("annee", annee)
-        .eq("visible", true);
+        .eq("visible", true)
+        .order("numero");
 
       if (data) {
-        setCorriges(data);
-        setGalleryOpen(true);
+        setExercices(data);
+        setExercicesDialogOpen(true);
         setDialogOpen(false);
       }
+    }
+  };
+
+  const handleExerciceSelect = async (exercice: Exercice) => {
+    setSelectedExercice(exercice);
+    
+    const { data } = await supabase
+      .from("corriges")
+      .select("*")
+      .eq("exercice_id", exercice.id)
+      .eq("visible", true);
+
+    if (data) {
+      setCorriges(data);
+      setGalleryOpen(true);
+      setExercicesDialogOpen(false);
+      
+      // Enregistrer la consultation
+      await supabase
+        .from("consultations")
+        .insert({
+          corrige_id: data[0]?.id,
+          user_id: profile?.id,
+        });
     }
   };
 
@@ -305,11 +341,35 @@ const UESelection = () => {
         </DialogContent>
       </Dialog>
 
+      <Dialog open={exercicesDialogOpen} onOpenChange={setExercicesDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {selectedUE?.nom} - {selectedType} - {selectedAnnee}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground mb-4">Sélectionnez un exercice :</p>
+            {exercices.map((exercice) => (
+              <Button
+                key={exercice.id}
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => handleExerciceSelect(exercice)}
+              >
+                Exercice {exercice.numero}
+                {exercice.description && ` - ${exercice.description}`}
+              </Button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
             <DialogTitle>
-              {selectedUE?.nom} - {selectedType} - {selectedAnnee}
+              {selectedUE?.nom} - {selectedType} {selectedAnnee} - Exercice {selectedExercice?.numero}
             </DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-4 max-h-[70vh] overflow-y-auto">
@@ -319,7 +379,7 @@ const UESelection = () => {
                   <div key={idx} className="relative group">
                     <img
                       src={imageUrl}
-                      alt={`Corrigé ${corrige.annee} - Page ${idx + 1}`}
+                      alt={`Corrigé - Page ${idx + 1}`}
                       className="w-full h-auto rounded-lg"
                       onContextMenu={(e) => e.preventDefault()}
                       draggable={false}
