@@ -28,6 +28,7 @@ interface Exercice {
   annee: string;
   numero: number;
   description: string | null;
+  ue_id: string;
   ues: { 
     nom: string;
     departements: { nom: string } | null;
@@ -164,6 +165,12 @@ const CorrigesManagement = () => {
     setUploading(true);
 
     try {
+      // Récupérer le ue_id de l'exercice sélectionné
+      const selectedExercice = exercices.find(ex => ex.id === corrigeFormData.exercice_id);
+      if (!selectedExercice) {
+        throw new Error("Exercice non trouvé");
+      }
+
       const uploadPromises = selectedFiles.map(async (file) => {
         const fileExt = file.name.split(".").pop();
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -188,6 +195,7 @@ const CorrigesManagement = () => {
         .from("corriges")
         .insert([{ 
           exercice_id: corrigeFormData.exercice_id,
+          ue_id: selectedExercice.ue_id,
           image_urls: imageUrls 
         }]);
 

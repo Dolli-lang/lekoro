@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Trash2, Shield, Loader2, Ban } from "lucide-react";
+import { Trash2, Shield, Loader2, Ban, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface Profile {
   id: string;
   full_name: string;
   avatar_url: string | null;
+  email: string | null;
+  suspended: boolean;
   created_at: string;
 }
 
@@ -59,11 +62,32 @@ const UsersManagement = () => {
     }
   };
 
+  const handleToggleSuspend = async (userId: string, currentStatus: boolean) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ suspended: !currentStatus })
+      .eq("id", userId);
+
+    if (error) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de modifier le statut",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Succès",
+        description: currentStatus ? "Utilisateur réactivé" : "Utilisateur suspendu",
+      });
+      fetchProfiles();
+    }
+  };
+
   const handleDeleteUser = async (userId: string) => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) return;
 
     try {
-      // Delete from profiles (will cascade to other tables)
+      // Supprimer le profil (cascade supprimera les autres données liées)
       const { error } = await supabase
         .from("profiles")
         .delete()
@@ -76,10 +100,11 @@ const UsersManagement = () => {
         description: "Utilisateur supprimé",
       });
       fetchProfiles();
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Delete error:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer l'utilisateur",
+        description: error.message || "Impossible de supprimer l'utilisateur",
         variant: "destructive",
       });
     }
@@ -100,6 +125,7 @@ const UsersManagement = () => {
           <TableRow>
             <TableHead>Utilisateur</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Statut</TableHead>
             <TableHead>Date d'inscription</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -116,7 +142,14 @@ const UsersManagement = () => {
                   <span className="font-medium">{profile.full_name}</span>
                 </div>
               </TableCell>
-              <TableCell>{profile.id}</TableCell>
+              <TableCell>{profile.email || "N/A"}</TableCell>
+              <TableCell>
+                {profile.suspended ? (
+                  <Badge variant="destructive">Suspendu</Badge>
+                ) : (
+                  <Badge variant="default" className="bg-green-500">Actif</Badge>
+                )}
+              </TableCell>
               <TableCell>{new Date(profile.created_at).toLocaleDateString()}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
@@ -127,6 +160,15 @@ const UsersManagement = () => {
                     title="Promouvoir admin"
                   >
                     <Shield className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleToggleSuspend(profile.id, profile.suspended)}
+                    title={profile.suspended ? "Réactiver" : "Suspendre"}
+                    className={profile.suspended ? "text-green-500" : "text-orange-500"}
+                  >
+                    {profile.suspended ? <CheckCircle className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
                   </Button>
                   <Button
                     variant="ghost"
