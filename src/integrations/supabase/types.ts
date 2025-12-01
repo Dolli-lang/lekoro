@@ -178,8 +178,10 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           departement_id: string | null
+          email: string | null
           full_name: string
           id: string
+          suspended: boolean
           ufr_id: string | null
           updated_at: string
         }
@@ -187,8 +189,10 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           departement_id?: string | null
+          email?: string | null
           full_name: string
           id: string
+          suspended?: boolean
           ufr_id?: string | null
           updated_at?: string
         }
@@ -196,8 +200,10 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           departement_id?: string | null
+          email?: string | null
           full_name?: string
           id?: string
+          suspended?: boolean
           ufr_id?: string | null
           updated_at?: string
         }
@@ -339,6 +345,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_email: { Args: { user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
