@@ -1,7 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,13 +21,32 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { name, email, message }: ContactEmailRequest = await req.json();
 
-    const adminEmail = Deno.env.get("ADMIN_EMAIL") || "admin@example.com";
+    const gmailUser = Deno.env.get("GMAIL_USER");
+    const gmailAppPassword = Deno.env.get("GMAIL_APP_PASSWORD");
+    const adminEmail = Deno.env.get("ADMIN_EMAIL") || gmailUser;
 
-    const emailResponse = await resend.emails.send({
-      from: "Le Koro <onboarding@resend.dev>",
-      to: [adminEmail],
+    if (!gmailUser || !gmailAppPassword) {
+      throw new Error("Gmail credentials not configured");
+    }
+
+    const client = new SMTPClient({
+      connection: {
+        hostname: "smtp.gmail.com",
+        port: 465,
+        tls: true,
+        auth: {
+          username: gmailUser,
+          password: gmailAppPassword,
+        },
+      },
+    });
+
+    await client.send({
+      from: gmailUser,
+      to: adminEmail,
       replyTo: email,
       subject: `Nouveau message de ${name}`,
+      content: "auto",
       html: `
         <h2>Nouveau message de contact</h2>
         <p><strong>De:</strong> ${name} (${email})</p>
@@ -38,9 +55,11 @@ const handler = async (req: Request): Promise<Response> => {
       `,
     });
 
-    console.log("Email envoyé avec succès:", emailResponse);
+    await client.close();
 
-    return new Response(JSON.stringify(emailResponse), {
+    console.log("Email envoyé avec succès via Gmail");
+
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: {
         "Content-Type": "application/json",
