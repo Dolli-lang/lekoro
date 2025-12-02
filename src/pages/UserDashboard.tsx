@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -38,29 +37,25 @@ const UserDashboard = () => {
     }
   }, [user, loading, navigate]);
 
-  const handleContactSubmit = async (e: React.FormEvent) => {
+  const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setContactErrors({});
 
     try {
       contactSchema.parse(contactData);
-      setSending(true);
 
-      const { error } = await supabase.functions.invoke("send-contact-email", {
-        body: {
-          name: profile?.full_name || "Utilisateur",
-          email: profile?.email || user?.email || "unknown@example.com",
-          message: `Sujet: ${contactData.subject}\n\n${contactData.message}`,
-        },
-      });
+      const body = `De: ${profile?.full_name || "Utilisateur"} (${profile?.email || user?.email || ""})\n\n${contactData.message}`;
+      const mailtoLink = `mailto:ninopaket@gmail.com?subject=${encodeURIComponent(
+        contactData.subject
+      )}&body=${encodeURIComponent(body)}`;
 
-      if (error) throw error;
+      window.location.href = mailtoLink;
 
       toast({
-        title: "Message envoyé",
-        description: "Votre message a été envoyé à l'administration",
+        title: "Ouverture de votre client mail",
+        description: "Un nouveau brouillon est prêt à être envoyé à l'administration.",
       });
-      
+
       setContactOpen(false);
       setContactData({ subject: "", message: "" });
     } catch (error) {
@@ -70,15 +65,7 @@ const UserDashboard = () => {
           if (err.path[0]) newErrors[err.path[0] as string] = err.message;
         });
         setContactErrors(newErrors);
-      } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible d'envoyer le message",
-          variant: "destructive",
-        });
       }
-    } finally {
-      setSending(false);
     }
   };
 

@@ -22,20 +22,23 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
     try {
       contactSchema.parse(formData);
-      setLoading(true);
 
-      // Simulation d'envoi
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const body = `Nom: ${formData.name} (${formData.email})\n\n${formData.message}`;
+      const mailtoLink = `mailto:ninopaket@gmail.com?subject=${encodeURIComponent(
+        "Contact depuis Le Koro"
+      )}&body=${encodeURIComponent(body)}`;
+
+      window.location.href = mailtoLink;
 
       toast({
-        title: "Message envoyé !",
-        description: "Nous vous répondrons dans les plus brefs délais.",
+        title: "Ouverture de votre client mail",
+        description: "Un nouveau brouillon est prêt à être envoyé.",
       });
 
       setFormData({ name: "", email: "", message: "" });
@@ -47,8 +50,6 @@ const Contact = () => {
         });
         setErrors(newErrors);
       }
-    } finally {
-      setLoading(false);
     }
   };
 

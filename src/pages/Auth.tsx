@@ -34,13 +34,15 @@ const Auth = () => {
   const [signInData, setSignInData] = useState({ email: "", password: "" });
   const [resetEmail, setResetEmail] = useState("");
   const [showResetPassword, setShowResetPassword] = useState(false);
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [ufrs, setUfrs] = useState<Array<{ id: string; nom: string }>>([]);
   const [departements, setDepartements] = useState<Array<{ id: string; nom: string }>>([]);
   
-  const { user, isAdmin, signUp, signIn, resetPassword } = useAuth();
+  const { user, isAdmin, signUp, signIn, resetPassword, updatePassword } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -79,6 +81,12 @@ const Auth = () => {
       } else {
         navigate("/dashboard");
       }
+    }
+
+    if (window.location.hash.includes("type=recovery")) {
+      setActiveTab("login");
+      setShowResetPassword(false);
+      setShowNewPasswordForm(true);
     }
   }, [user, isAdmin, navigate]);
 
@@ -167,7 +175,54 @@ const Auth = () => {
               </TabsList>
               
               <TabsContent value="login">
-                {showResetPassword ? (
+                {showNewPasswordForm ? (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setErrors({});
+
+                      try {
+                        const passwordSchema = z
+                          .string()
+                          .min(6, "Le mot de passe doit contenir au moins 6 caractères");
+                        passwordSchema.parse(newPassword);
+                        setLoading(true);
+
+                        const { error } = await updatePassword(newPassword);
+                        if (!error) {
+                          setShowNewPasswordForm(false);
+                          setNewPassword("");
+                          navigate("/dashboard");
+                        }
+                      } catch (error) {
+                        if (error instanceof z.ZodError) {
+                          setErrors({ newPassword: error.errors[0].message });
+                        }
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="space-y-4"
+                  >
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">Nouveau mot de passe</Label>
+                      <Input
+                        id="new-password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        disabled={loading}
+                      />
+                      {errors.newPassword && (
+                        <p className="text-sm text-destructive">{errors.newPassword}</p>
+                      )}
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                      {loading ? "Mise à jour..." : "Mettre à jour le mot de passe"}
+                    </Button>
+                  </form>
+                ) : showResetPassword ? (
                   <form onSubmit={handleResetPassword} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="reset-email">Email</Label>
@@ -184,9 +239,9 @@ const Auth = () => {
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Envoi..." : "Réinitialiser le mot de passe"}
                     </Button>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
+                    <Button
+                      type="button"
+                      variant="ghost"
                       className="w-full"
                       onClick={() => {
                         setShowResetPassword(false);
@@ -206,7 +261,9 @@ const Auth = () => {
                         type="email"
                         placeholder="votre@email.com"
                         value={signInData.email}
-                        onChange={(e) => setSignInData({ ...signInData, email: e.target.value })}
+                        onChange={(e) =>
+                          setSignInData({ ...signInData, email: e.target.value })
+                        }
                         disabled={loading}
                       />
                       {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -227,10 +284,14 @@ const Auth = () => {
                         type="password"
                         placeholder="••••••••"
                         value={signInData.password}
-                        onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
+                        onChange={(e) =>
+                          setSignInData({ ...signInData, password: e.target.value })
+                        }
                         disabled={loading}
                       />
-                      {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+                      {errors.password && (
+                        <p className="text-sm text-destructive">{errors.password}</p>
+                      )}
                     </div>
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Connexion..." : "Se connecter"}
