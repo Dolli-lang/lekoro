@@ -58,53 +58,58 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-subtle">
+    <div className="min-h-screen flex flex-col" style={{ background: "var(--gradient-subtle)" }}>
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Tableau de bord administrateur</h1>
-          <p className="text-muted-foreground">Gérez les utilisateurs, UE et corrigés</p>
+          <div className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
+            Administration
+          </div>
+          <h1 className="text-4xl font-bold text-foreground mb-2 bg-clip-text text-transparent" style={{ backgroundImage: "var(--gradient-hero)" }}>
+            Tableau de bord
+          </h1>
+          <p className="text-muted-foreground text-lg">Gérez les utilisateurs, UEs et corrigés</p>
         </div>
 
         <AdminStats />
 
         <Tabs defaultValue="hero" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-secondary/50 p-1 rounded-lg gap-1">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-card p-1.5 rounded-xl gap-1 shadow-[var(--shadow-card)]">
             <TabsTrigger 
               value="hero"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-[hsl(280_70%_65%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Accueil
+              🏠 Accueil
             </TabsTrigger>
             <TabsTrigger 
               value="ufrs"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(217_91%_55%)] data-[state=active]:to-[hsl(200_91%_60%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
-              UFRs
+              🏫 UFRs
             </TabsTrigger>
             <TabsTrigger 
               value="departements"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-[hsl(35_95%_55%)] data-[state=active]:text-accent-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Départements
+              📚 Dépts
             </TabsTrigger>
             <TabsTrigger 
               value="ues"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(152_76%_40%)] data-[state=active]:to-[hsl(175_70%_41%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
-              UEs
+              📖 UEs
             </TabsTrigger>
             <TabsTrigger 
               value="corriges"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(262_83%_58%)] data-[state=active]:to-[hsl(280_70%_65%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Corrigés
+              📝 Corrigés
             </TabsTrigger>
             <TabsTrigger 
               value="users"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(330_80%_55%)] data-[state=active]:to-[hsl(280_70%_65%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
-              Utilisateurs
+              👥 Users
             </TabsTrigger>
           </TabsList>
 
@@ -113,9 +118,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="ufrs" className="mt-6">
-            <Card className="border-l-4 border-l-primary shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-blue))] to-card">
-              <CardHeader>
-                <CardTitle className="text-primary">Gestion des UFRs</CardTitle>
+            <Card className="border-none shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] transition-all duration-300 bg-card overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-[hsl(217_91%_55%)] to-[hsl(200_91%_60%)]" />
+              <CardHeader className="bg-gradient-to-br from-[hsl(var(--highlight-blue))] to-transparent">
+                <CardTitle className="text-[hsl(217_91%_55%)] flex items-center gap-2">🏫 Gestion des UFRs</CardTitle>
                 <CardDescription>Ajoutez, modifiez ou supprimez des UFRs (ex: SSMT)</CardDescription>
               </CardHeader>
               <CardContent>
@@ -125,10 +131,11 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="departements" className="mt-6">
-            <Card className="border-l-4 border-l-[hsl(var(--accent))] shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-yellow))] to-card">
-              <CardHeader>
-                <CardTitle className="text-[hsl(var(--accent))]">Gestion des Départements</CardTitle>
-                <CardDescription>Ajoutez, modifiez ou supprimez des départements ou filières (ex: Physique Chimie)</CardDescription>
+            <Card className="border-none shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] transition-all duration-300 bg-card overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-accent to-[hsl(35_95%_55%)]" />
+              <CardHeader className="bg-gradient-to-br from-[hsl(var(--highlight-orange))] to-transparent">
+                <CardTitle className="text-accent flex items-center gap-2">📚 Gestion des Départements</CardTitle>
+                <CardDescription>Ajoutez, modifiez ou supprimez des départements ou filières</CardDescription>
               </CardHeader>
               <CardContent>
                 <DepartementsManagement />
@@ -137,9 +144,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="ues" className="mt-6">
-            <Card className="border-l-4 border-l-green-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-green))] to-card">
-              <CardHeader>
-                <CardTitle className="text-green-600 dark:text-green-400">Gestion des UEs</CardTitle>
+            <Card className="border-none shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] transition-all duration-300 bg-card overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-[hsl(152_76%_40%)] to-[hsl(175_70%_41%)]" />
+              <CardHeader className="bg-gradient-to-br from-[hsl(var(--highlight-teal))] to-transparent">
+                <CardTitle className="text-[hsl(var(--color-green))] flex items-center gap-2">📖 Gestion des UEs</CardTitle>
                 <CardDescription>Ajoutez, modifiez ou supprimez des unités d'enseignement</CardDescription>
               </CardHeader>
               <CardContent>
@@ -149,9 +157,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="corriges" className="mt-6">
-            <Card className="border-l-4 border-l-purple-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-purple))] to-card">
-              <CardHeader>
-                <CardTitle className="text-purple-600 dark:text-purple-400">Gestion des corrigés</CardTitle>
+            <Card className="border-none shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] transition-all duration-300 bg-card overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-primary to-[hsl(280_70%_65%)]" />
+              <CardHeader className="bg-gradient-to-br from-[hsl(var(--highlight-purple))] to-transparent">
+                <CardTitle className="text-primary flex items-center gap-2">📝 Gestion des corrigés</CardTitle>
                 <CardDescription>Ajoutez des TD et examens pour les UEs</CardDescription>
               </CardHeader>
               <CardContent>
@@ -161,9 +170,10 @@ const AdminDashboard = () => {
           </TabsContent>
 
           <TabsContent value="users" className="mt-6">
-            <Card className="border-l-4 border-l-orange-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-orange))] to-card">
-              <CardHeader>
-                <CardTitle className="text-orange-600 dark:text-orange-400">Gestion des utilisateurs</CardTitle>
+            <Card className="border-none shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] transition-all duration-300 bg-card overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-[hsl(330_80%_55%)] to-[hsl(280_70%_65%)]" />
+              <CardHeader className="bg-gradient-to-br from-[hsl(var(--highlight-pink))] to-transparent">
+                <CardTitle className="text-[hsl(var(--color-pink))] flex items-center gap-2">👥 Gestion des utilisateurs</CardTitle>
                 <CardDescription>Gérez les utilisateurs et leurs rôles</CardDescription>
               </CardHeader>
               <CardContent>
