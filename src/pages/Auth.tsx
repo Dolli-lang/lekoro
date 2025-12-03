@@ -75,20 +75,27 @@ const Auth = () => {
   }, [signUpData.ufrId]);
 
   useEffect(() => {
-    if (user) {
+    // Check for password recovery mode first
+    const isRecoveryMode = window.location.hash.includes("type=recovery");
+    
+    if (isRecoveryMode) {
+      setActiveTab("login");
+      setShowResetPassword(false);
+      setShowNewPasswordForm(true);
+      // Clear the hash to prevent issues on refresh
+      window.history.replaceState(null, "", window.location.pathname);
+      return; // Don't redirect, show the new password form
+    }
+
+    // Only redirect if not in recovery mode
+    if (user && !showNewPasswordForm) {
       if (isAdmin) {
         navigate("/admin");
       } else {
         navigate("/dashboard");
       }
     }
-
-    if (window.location.hash.includes("type=recovery")) {
-      setActiveTab("login");
-      setShowResetPassword(false);
-      setShowNewPasswordForm(true);
-    }
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, navigate, showNewPasswordForm]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
