@@ -62,9 +62,9 @@ const UserHistory = () => {
       <TableBody>
         {consultations.map((consultation) => (
           <TableRow key={consultation.id}>
-            <TableCell>{consultation.corriges.ues.nom}</TableCell>
-            <TableCell>{consultation.corriges.type}</TableCell>
-            <TableCell>{consultation.corriges.annee}</TableCell>
+            <TableCell>{consultation.corriges?.ues?.nom ?? "UE supprimée"}</TableCell>
+            <TableCell>{consultation.corriges?.type ?? "-"}</TableCell>
+            <TableCell>{consultation.corriges?.annee ?? "-"}</TableCell>
             <TableCell>{new Date(consultation.viewed_at).toLocaleDateString()}</TableCell>
           </TableRow>
         ))}
