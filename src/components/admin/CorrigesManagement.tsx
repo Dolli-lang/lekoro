@@ -402,8 +402,8 @@ const CorrigesManagement = () => {
             <TableBody>
               {exercices.map((exercice) => (
                 <TableRow key={exercice.id}>
-                  <TableCell>{exercice.ues.departements?.nom || "N/A"}</TableCell>
-                  <TableCell>{exercice.ues.nom}</TableCell>
+                  <TableCell>{exercice.ues?.departements?.nom || "N/A"}</TableCell>
+                  <TableCell>{exercice.ues?.nom || "UE supprimée"}</TableCell>
                   <TableCell>{exercice.type}</TableCell>
                   <TableCell>{exercice.annee}</TableCell>
                   <TableCell>{exercice.numero}</TableCell>
@@ -447,9 +447,9 @@ const CorrigesManagement = () => {
                       <SelectValue placeholder="Sélectionner un exercice" />
                     </SelectTrigger>
                     <SelectContent>
-                      {exercices.map((exercice) => (
+                      {exercices.filter(ex => ex.ues).map((exercice) => (
                         <SelectItem key={exercice.id} value={exercice.id}>
-                          {exercice.ues.nom} - {exercice.type} {exercice.annee} - Ex. {exercice.numero}
+                          {exercice.ues?.nom || "UE inconnue"} - {exercice.type} {exercice.annee} - Ex. {exercice.numero}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -493,11 +493,11 @@ const CorrigesManagement = () => {
             <TableBody>
               {corriges.map((corrige) => (
                 <TableRow key={corrige.id}>
-                  <TableCell>{corrige.exercices.ues.departements?.nom || "N/A"}</TableCell>
-                  <TableCell>{corrige.exercices.ues.nom}</TableCell>
-                  <TableCell>{corrige.exercices.type}</TableCell>
-                  <TableCell>{corrige.exercices.annee}</TableCell>
-                  <TableCell>{corrige.exercices.numero}</TableCell>
+                  <TableCell>{corrige.exercices?.ues?.departements?.nom || "N/A"}</TableCell>
+                  <TableCell>{corrige.exercices?.ues?.nom || "Exercice supprimé"}</TableCell>
+                  <TableCell>{corrige.exercices?.type || "-"}</TableCell>
+                  <TableCell>{corrige.exercices?.annee || "-"}</TableCell>
+                  <TableCell>{corrige.exercices?.numero || "-"}</TableCell>
                   <TableCell>
                     <Button
                       variant="outline"
