@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
 interface Departement {
   id: string;
@@ -61,6 +62,8 @@ const CorrigesManagement = () => {
   const [uploading, setUploading] = useState(false);
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [exerciceFormData, setExerciceFormData] = useState({
     discipline_id: "",
     ue_id: "",
@@ -273,6 +276,11 @@ const CorrigesManagement = () => {
   const handleViewImages = (imageUrls: string[]) => {
     setSelectedImages(imageUrls);
     setViewDialogOpen(true);
+  };
+
+  const handleImageClick = (idx: number) => {
+    setLightboxIndex(idx);
+    setLightboxOpen(true);
   };
 
   if (loading) {
@@ -531,18 +539,36 @@ const CorrigesManagement = () => {
           <DialogHeader>
             <DialogTitle>Images du corrigé</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4">
+          <p className="text-sm text-muted-foreground mb-2">Cliquez sur une image pour l'agrandir</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {selectedImages.map((url, idx) => (
-              <img
+              <div 
                 key={idx}
-                src={url}
-                alt={`Corrigé ${idx + 1}`}
-                className="w-full rounded-lg border"
-              />
+                className="relative cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => handleImageClick(idx)}
+              >
+                <img
+                  src={url}
+                  alt={`Corrigé ${idx + 1}`}
+                  className="w-full h-auto rounded-lg border shadow-md"
+                />
+                <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+                  <span className="opacity-0 hover:opacity-100 text-white font-medium transition-opacity">
+                    Page {idx + 1}
+                  </span>
+                </div>
+              </div>
             ))}
           </div>
         </DialogContent>
       </Dialog>
+
+      <ImageLightbox
+        images={selectedImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </div>
   );
 };

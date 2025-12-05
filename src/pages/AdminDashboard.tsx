@@ -12,6 +12,7 @@ import UFRManagement from "@/components/admin/UFRManagement";
 import DepartementsManagement from "@/components/admin/DepartementsManagement";
 import AdminStats from "@/components/admin/AdminStats";
 import { HeroImageManagement } from "@/components/admin/HeroImageManagement";
+import AuthHistoryManagement from "@/components/admin/AuthHistoryManagement";
 import { Loader2 } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -74,7 +75,7 @@ const AdminDashboard = () => {
         <AdminStats />
 
         <Tabs defaultValue="hero" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-card p-1.5 rounded-xl gap-1 shadow-[var(--shadow-card)]">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 bg-card p-1.5 rounded-xl gap-1 shadow-[var(--shadow-card)]">
             <TabsTrigger 
               value="hero"
               className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-[hsl(280_70%_65%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
@@ -110,6 +111,12 @@ const AdminDashboard = () => {
               className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(330_80%_55%)] data-[state=active]:to-[hsl(280_70%_65%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
             >
               👥 Users
+            </TabsTrigger>
+            <TabsTrigger 
+              value="history"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-[hsl(45_93%_47%)] data-[state=active]:to-[hsl(35_95%_55%)] data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
+            >
+              📊 Historique
             </TabsTrigger>
           </TabsList>
 
@@ -178,6 +185,19 @@ const AdminDashboard = () => {
               </CardHeader>
               <CardContent>
                 <UsersManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="mt-6">
+            <Card className="border-none shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elegant)] transition-all duration-300 bg-card overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-[hsl(45_93%_47%)] to-[hsl(35_95%_55%)]" />
+              <CardHeader className="bg-gradient-to-br from-[hsl(var(--highlight-orange))] to-transparent">
+                <CardTitle className="text-[hsl(45_93%_47%)] flex items-center gap-2">📊 Historique des connexions</CardTitle>
+                <CardDescription>Consultez l'historique des inscriptions et connexions</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AuthHistoryManagement />
               </CardContent>
             </Card>
           </TabsContent>

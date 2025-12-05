@@ -128,7 +128,19 @@ const Auth = () => {
     try {
       signInSchema.parse(signInData);
       setLoading(true);
-      await signIn(signInData.email, signInData.password);
+      const { error } = await signIn(signInData.email, signInData.password);
+      
+      // Log the login event if successful
+      if (!error) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData.session?.user) {
+          await supabase.from("auth_history").insert({
+            user_id: sessionData.session.user.id,
+            user_email: sessionData.session.user.email,
+            event_type: "login"
+          });
+        }
+      }
     } catch (error) {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
