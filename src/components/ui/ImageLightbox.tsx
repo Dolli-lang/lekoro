@@ -41,39 +41,52 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
     };
   }, [isOpen, handleKeyDown]);
 
-  if (!isOpen) return null;
+  if (!isOpen || images.length === 0) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center">
-      {/* Close button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-4 right-4 text-white hover:bg-white/20 z-50"
-        onClick={onClose}
-      >
-        <X className="w-6 h-6" />
-      </Button>
-
-      {/* Image counter */}
-      <div className="absolute top-4 left-4 text-white text-sm bg-black/50 px-3 py-1 rounded-full">
-        {currentIndex + 1} / {images.length}
-      </div>
-
-      {/* Previous button */}
-      {images.length > 1 && (
+    <div 
+      className="fixed inset-0 bg-black flex flex-col items-center justify-center"
+      style={{ zIndex: 9999 }}
+    >
+      {/* Header with close button and counter */}
+      <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-4 bg-gradient-to-b from-black/80 to-transparent z-10">
+        <div className="text-white text-sm font-medium bg-black/50 px-3 py-1.5 rounded-full">
+          {currentIndex + 1} / {images.length}
+        </div>
         <Button
           variant="ghost"
           size="icon"
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12"
-          onClick={handlePrevious}
+          className="text-white hover:bg-white/20 rounded-full"
+          onClick={onClose}
         >
-          <ChevronLeft className="w-8 h-8" />
+          <X className="w-6 h-6" />
         </Button>
+      </div>
+
+      {/* Navigation buttons */}
+      {images.length > 1 && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12 rounded-full z-10"
+            onClick={handlePrevious}
+          >
+            <ChevronLeft className="w-8 h-8" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12 rounded-full z-10"
+            onClick={handleNext}
+          >
+            <ChevronRight className="w-8 h-8" />
+          </Button>
+        </>
       )}
 
-      {/* Image */}
-      <div className="w-full h-full flex items-center justify-center p-12">
+      {/* Main image container */}
+      <div className="flex-1 w-full flex items-center justify-center p-4 pt-16 pb-24">
         <img
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
@@ -83,36 +96,28 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         />
       </div>
 
-      {/* Next button */}
+      {/* Thumbnail navigation at bottom */}
       {images.length > 1 && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12"
-          onClick={handleNext}
-        >
-          <ChevronRight className="w-8 h-8" />
-        </Button>
-      )}
-
-      {/* Thumbnail navigation */}
-      {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 overflow-x-auto max-w-[90vw] p-2 bg-black/50 rounded-lg">
-          {images.map((img, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              className={`flex-shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 transition-all ${
-                idx === currentIndex ? "border-primary scale-110" : "border-transparent opacity-60 hover:opacity-100"
-              }`}
-            >
-              <img
-                src={img}
-                alt={`Thumbnail ${idx + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </button>
-          ))}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent py-4 px-2">
+          <div className="flex gap-2 overflow-x-auto justify-center max-w-full">
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentIndex(idx)}
+                className={`flex-shrink-0 w-14 h-14 rounded-md overflow-hidden border-2 transition-all ${
+                  idx === currentIndex 
+                    ? "border-primary ring-2 ring-primary/50 scale-110" 
+                    : "border-transparent opacity-50 hover:opacity-100"
+                }`}
+              >
+                <img
+                  src={img}
+                  alt={`Miniature ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>
