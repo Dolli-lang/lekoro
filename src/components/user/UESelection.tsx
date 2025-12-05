@@ -7,6 +7,7 @@ import { BookOpen, FileText, Loader2, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
 interface UFR {
   id: string;
@@ -62,6 +63,9 @@ const UESelection = () => {
   const [exercicesDialogOpen, setExercicesDialogOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [allImages, setAllImages] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchDepartements = async () => {
@@ -206,6 +210,9 @@ const UESelection = () => {
 
     if (data) {
       setCorriges(data);
+      // Flatten all images from all corriges
+      const images = data.flatMap((c) => c.image_urls || []);
+      setAllImages(images);
       setGalleryOpen(true);
       setExercicesDialogOpen(false);
       
@@ -217,6 +224,11 @@ const UESelection = () => {
           user_id: profile?.id,
         });
     }
+  };
+
+  const handleImageClick = (imageIndex: number) => {
+    setLightboxIndex(imageIndex);
+    setLightboxOpen(true);
   };
 
   if (loading) {
@@ -372,25 +384,38 @@ const UESelection = () => {
               {selectedUE?.nom} - {selectedType} {selectedAnnee} - Exercice {selectedExercice?.numero}
             </DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-1 gap-4 max-h-[70vh] overflow-y-auto">
-            {corriges.map((corrige) => (
-              <div key={corrige.id} className="space-y-2">
-                {corrige.image_urls?.map((imageUrl, idx) => (
-                  <div key={idx} className="relative group">
-                    <img
-                      src={imageUrl}
-                      alt={`Corrigé - Page ${idx + 1}`}
-                      className="w-full h-auto rounded-lg"
-                      onContextMenu={(e) => e.preventDefault()}
-                      draggable={false}
-                    />
-                  </div>
-                ))}
+          <p className="text-sm text-muted-foreground mb-2">Cliquez sur une image pour l'agrandir</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto">
+            {allImages.map((imageUrl, idx) => (
+              <div 
+                key={idx} 
+                className="relative group cursor-pointer hover:scale-105 transition-transform"
+                onClick={() => handleImageClick(idx)}
+              >
+                <img
+                  src={imageUrl}
+                  alt={`Corrigé - Page ${idx + 1}`}
+                  className="w-full h-auto rounded-lg shadow-md"
+                  onContextMenu={(e) => e.preventDefault()}
+                  draggable={false}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
+                  <span className="opacity-0 group-hover:opacity-100 text-white font-medium transition-opacity">
+                    Page {idx + 1}
+                  </span>
+                </div>
               </div>
             ))}
           </div>
         </DialogContent>
       </Dialog>
+
+      <ImageLightbox
+        images={allImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
     </>
   );
 };
