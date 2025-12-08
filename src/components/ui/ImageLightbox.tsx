@@ -64,14 +64,14 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       </div>
 
       {/* Main image container */}
-      <div className="flex-1 relative flex items-center justify-center overflow-hidden min-h-0">
+      <div className="flex-1 relative flex items-center justify-center overflow-hidden min-h-0 px-14">
         {/* Navigation buttons */}
         {images.length > 1 && (
           <>
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-10 h-10 rounded-full z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12 rounded-full z-10"
               onClick={handlePrevious}
             >
               <ChevronLeft className="w-6 h-6" />
@@ -79,7 +79,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-10 h-10 rounded-full z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12 rounded-full z-10"
               onClick={handleNext}
             >
               <ChevronRight className="w-6 h-6" />
@@ -90,7 +90,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         <img
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          className="max-w-full max-h-full object-contain select-none px-12"
+          className="max-w-full max-h-full object-contain select-none"
           onContextMenu={(e) => e.preventDefault()}
           draggable={false}
         />
