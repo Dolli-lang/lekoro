@@ -64,37 +64,35 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       </div>
 
       {/* Main image container */}
-      <div className="flex-1 flex items-center justify-center overflow-hidden relative" style={{ minHeight: 0 }}>
+      <div className="flex-1 relative overflow-hidden" style={{ minHeight: 0 }}>
         {/* Navigation buttons */}
         {images.length > 1 && (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12 rounded-full z-10"
+            <button
+              className="absolute left-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-10 h-10 rounded-full z-10 flex items-center justify-center"
               onClick={handlePrevious}
             >
               <ChevronLeft className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-12 h-12 rounded-full z-10"
+            </button>
+            <button
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 w-10 h-10 rounded-full z-10 flex items-center justify-center"
               onClick={handleNext}
             >
               <ChevronRight className="w-6 h-6" />
-            </Button>
+            </button>
           </>
         )}
         
-        <img
-          src={images[currentIndex]}
-          alt={`Image ${currentIndex + 1}`}
-          className="max-w-[calc(100%-7rem)] max-h-full object-contain select-none"
-          style={{ margin: 'auto' }}
-          onContextMenu={(e) => e.preventDefault()}
-          draggable={false}
-        />
+        {/* Centered image */}
+        <div className="absolute inset-0 flex items-center justify-center p-2">
+          <img
+            src={images[currentIndex]}
+            alt={`Image ${currentIndex + 1}`}
+            className="max-w-full max-h-full object-contain select-none"
+            onContextMenu={(e) => e.preventDefault()}
+            draggable={false}
+          />
+        </div>
       </div>
 
       {/* Thumbnail navigation at bottom */}
