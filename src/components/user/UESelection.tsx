@@ -228,6 +228,7 @@ const UESelection = () => {
 
   const handleImageClick = (imageIndex: number) => {
     setLightboxIndex(imageIndex);
+    setGalleryOpen(false); // Fermer la gallery avant d'ouvrir le lightbox
     setLightboxOpen(true);
   };
 
