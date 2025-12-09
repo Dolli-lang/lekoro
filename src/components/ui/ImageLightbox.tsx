@@ -63,29 +63,36 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       </div>
 
       {/* Main content - image with nav buttons */}
-      <div className="flex-1 flex items-center justify-center relative min-h-0">
+      <div className="flex-1 flex items-center justify-center relative min-h-0 overflow-hidden px-16">
         {/* Navigation buttons */}
         {images.length > 1 && (
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 text-white hover:bg-black/80 w-12 h-12 rounded-full z-10 flex items-center justify-center"
-            onClick={handlePrevious}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white hover:bg-black/80 w-12 h-12 rounded-full z-10 flex items-center justify-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlePrevious();
+            }}
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
         )}
 
         <img
+          key={currentIndex}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          className="max-w-[calc(100%-120px)] max-h-full object-contain select-none"
+          className="max-w-full max-h-full w-auto h-auto object-contain select-none"
           onContextMenu={(e) => e.preventDefault()}
           draggable={false}
         />
 
         {images.length > 1 && (
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 text-white hover:bg-black/80 w-12 h-12 rounded-full z-10 flex items-center justify-center"
-            onClick={handleNext}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white hover:bg-black/80 w-12 h-12 rounded-full z-10 flex items-center justify-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleNext();
+            }}
           >
             <ChevronRight className="w-7 h-7" />
           </button>
