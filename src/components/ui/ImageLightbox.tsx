@@ -45,7 +45,8 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
   return (
     <div 
-      className="fixed inset-0 bg-black flex flex-col z-[99999]"
+      className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black flex flex-col"
+      style={{ zIndex: 999999 }}
     >
       {/* Header */}
       <div className="flex justify-between items-center p-3 shrink-0">
@@ -62,12 +63,12 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         </Button>
       </div>
 
-      {/* Main content - image with nav buttons */}
-      <div className="flex-1 flex items-center justify-center relative min-h-0 overflow-hidden px-16">
+      {/* Main content - image fills available space */}
+      <div className="flex-1 flex items-center justify-center relative min-h-0 px-4">
         {/* Navigation buttons */}
         {images.length > 1 && (
           <button
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white hover:bg-black/80 w-12 h-12 rounded-full z-10 flex items-center justify-center"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 text-white hover:bg-white/30 w-12 h-12 rounded-full z-10 flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation();
               handlePrevious();
@@ -81,14 +82,14 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
           key={currentIndex}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          className="max-w-full max-h-full w-auto h-auto object-contain select-none"
+          className="max-w-[90vw] max-h-[70vh] w-auto h-auto object-contain select-none"
           onContextMenu={(e) => e.preventDefault()}
           draggable={false}
         />
 
         {images.length > 1 && (
           <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white hover:bg-black/80 w-12 h-12 rounded-full z-10 flex items-center justify-center"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 text-white hover:bg-white/30 w-12 h-12 rounded-full z-10 flex items-center justify-center"
             onClick={(e) => {
               e.stopPropagation();
               handleNext();
