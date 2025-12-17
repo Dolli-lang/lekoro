@@ -7,7 +7,6 @@ import { BookOpen, FileText, Loader2, ArrowLeft, MessageSquare } from "lucide-re
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
 // --- INTERFACES ---
 interface UFR { id: string; nom: string; description: string | null; image_url: string | null; }
@@ -34,35 +33,21 @@ const UESelection = () => {
   const [exercicesDialogOpen, setExercicesDialogOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [allImages, setAllImages] = useState<string[]>([]);
 
-  // Précharger les images pour le lightbox
-  const preloadImages = (urls: string[]) => {
-    urls.forEach(url => {
-      const img = new Image();
-      img.src = url;
-    });
-  };
+  // Précharger les images
+  const preloadImages = (urls: string[]) => urls.forEach(url => { const img = new Image(); img.src = url; });
 
   // Fetch initial data
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (!profile?.ufr_id) {
-        setLoading(false);
-        return;
-      }
+      if (!profile?.ufr_id) { setLoading(false); return; }
 
-      const { data: ufrData } = await supabase
-        .from("ufrs")
-        .select("*")
-        .eq("id", profile.ufr_id)
-        .maybeSingle();
+      const { data: ufrData } = await supabase.from("ufrs").select("*").eq("id", profile.ufr_id).maybeSingle();
       if (ufrData) setSelectedUFR(ufrData);
 
-      const { data } = await supabase
-        .from("departements")
+      const { data } = await supabase.from("departements")
         .select("*")
         .eq("ufr_id", profile.ufr_id)
         .eq("visible", true)
@@ -71,90 +56,61 @@ const UESelection = () => {
 
       setLoading(false);
     };
-
     if (profile) fetchInitialData();
   }, [profile]);
 
   const handleDepartementClick = async (dept: Departement) => {
     setSelectedDepartement(dept);
     setLoading(true);
-
-    const { data } = await supabase
-      .from("ues")
+    const { data } = await supabase.from("ues")
       .select("*")
       .eq("discipline_id", dept.id)
       .eq("visible", true)
       .order("nom");
-
     if (data) setUes(data);
     setLoading(false);
   };
 
-  const handleUEClick = (ue: UE) => {
-    setSelectedUE(ue);
-    setSelectedType("");
-    setSelectedAnnee("");
-    setDialogOpen(true);
-  };
+  const handleUEClick = (ue: UE) => { setSelectedUE(ue); setSelectedType(""); setSelectedAnnee(""); setDialogOpen(true); };
 
   const handleTypeSelect = async (type: string) => {
     setSelectedType(type);
     if (!selectedUE) return;
-
-    const { data } = await supabase
-      .from("exercices")
+    const { data } = await supabase.from("exercices")
       .select("annee")
       .eq("ue_id", selectedUE.id)
       .eq("type", type)
       .eq("visible", true);
-
     if (data) setAnnees([...new Set(data.map(e => e.annee))].sort().reverse());
   };
 
   const handleAnneeSelect = async (annee: string) => {
     setSelectedAnnee(annee);
     if (!selectedUE || !selectedType) return;
-
-    const { data } = await supabase
-      .from("exercices")
+    const { data } = await supabase.from("exercices")
       .select("*")
       .eq("ue_id", selectedUE.id)
       .eq("type", selectedType)
       .eq("annee", annee)
       .eq("visible", true)
       .order("numero");
-
-    if (data) {
-      setExercices(data);
-      setExercicesDialogOpen(true);
-      setDialogOpen(false);
-    }
+    if (data) { setExercices(data); setExercicesDialogOpen(true); setDialogOpen(false); }
   };
 
   const handleExerciceSelect = async (ex: Exercice) => {
     setSelectedExercice(ex);
-
-    const { data } = await supabase
-      .from("corriges")
+    const { data } = await supabase.from("corriges")
       .select("*")
       .eq("exercice_id", ex.id)
       .eq("visible", true);
-
     if (data && data.length > 0) {
       const images = data.flatMap(c => c.image_urls || []);
       setAllImages(images);
       preloadImages(images);
-
       setGalleryOpen(true);
       setExercicesDialogOpen(false);
-
       await supabase.from("consultations").insert({ corrige_id: data[0].id, user_id: profile?.id });
     }
-  };
-
-  const handleImageClick = (idx: number) => {
-    setLightboxIndex(idx);
-    setLightboxOpen(true);
   };
 
   return (
@@ -295,7 +251,7 @@ const UESelection = () => {
         </div>
       </footer>
 
-      {/* MODALES */}
+      {/* --- MODALES --- */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -336,44 +292,77 @@ const UESelection = () => {
         </DialogContent>
       </Dialog>
 
-            {/* Galerie simplifiée */}
-      <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-        <DialogContent className="max-w-4xl max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle>{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto p-1">
-            {allImages.map((url, idx) => (
-              <div
-                key={idx}
-                className="relative cursor-pointer overflow-hidden rounded-lg shadow-md border"
-                onClick={() => handleImageClick(idx)}
-              >
-                <img
-                  src={url}
-                  alt={`Page ${idx + 1}`}
-                  className="w-full h-auto"
-                  onContextMenu={(e) => e.preventDefault()}
-                  draggable={false}
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-opacity duration-200 hover:bg-black/20 pointer-events-none">
-                  <span className="text-white font-medium bg-black/40 px-3 py-1 rounded text-xs">
-                    Page {idx + 1}
-                  </span>
-                </div>
-              </div>
-            ))}
+      {/* --- Galerie --- */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 px-4 py-4">
+        {allImages.map((url, idx) => (
+          <div
+            key={idx}
+            className="relative cursor-pointer overflow-hidden rounded-lg shadow-md border"
+            onClick={() => { setLightboxIndex(idx); setGalleryOpen(true); }}
+          >
+            <img
+              src={url}
+              alt={`Page ${idx + 1}`}
+              className="w-full h-auto"
+              onContextMenu={(e) => e.preventDefault()}
+              draggable={false}
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-opacity duration-200 hover:bg-black/20 pointer-events-none">
+              <span className="text-white font-medium bg-black/40 px-3 py-1 rounded text-xs">
+                Page {idx + 1}
+              </span>
+            </div>
           </div>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Lightbox simplifié */}
-      <ImageLightbox
-        images={allImages}
-        initialIndex={lightboxIndex}
-        isOpen={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-      />
+        ))}
+      </div>
+
+      {/* --- Lightbox CSS pur --- */}
+      {galleryOpen && allImages.length > 0 && (
+        <div
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          onClick={() => setGalleryOpen(false)}
+        >
+          <div
+            className="relative max-w-4xl max-h-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="absolute top-2 right-2 text-white text-2xl font-bold z-50"
+              onClick={() => setGalleryOpen(false)}
+            >
+              &times;
+            </button>
+            <img
+              src={allImages[lightboxIndex]}
+              alt={`Page ${lightboxIndex + 1}`}
+              className="max-h-[85vh] w-auto mx-auto rounded shadow-lg"
+            />
+            {allImages.length > 1 && (
+              <div className="absolute inset-0 flex justify-between items-center px-4">
+                <button
+                  className="text-white text-3xl font-bold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex((prev) => (prev === 0 ? allImages.length - 1 : prev - 1));
+                  }}
+                >
+                  ‹
+                </button>
+                <button
+                  className="text-white text-3xl font-bold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex((prev) => (prev === allImages.length - 1 ? 0 : prev + 1));
+                  }}
+                >
+                  ›
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
