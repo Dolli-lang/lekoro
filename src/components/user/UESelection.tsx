@@ -210,13 +210,11 @@ const UESelection = () => {
 
     if (data) {
       setCorriges(data);
-      // Flatten all images from all corriges
       const images = data.flatMap((c) => c.image_urls || []);
       setAllImages(images);
       setGalleryOpen(true);
       setExercicesDialogOpen(false);
       
-      // Enregistrer la consultation
       await supabase
         .from("consultations")
         .insert({
@@ -228,7 +226,7 @@ const UESelection = () => {
 
   const handleImageClick = (imageIndex: number) => {
     setLightboxIndex(imageIndex);
-    setGalleryOpen(false); // Fermer la gallery avant d'ouvrir le lightbox
+    setGalleryOpen(false); 
     setLightboxOpen(true);
   };
 
@@ -386,22 +384,22 @@ const UESelection = () => {
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground mb-2">Cliquez sur une image pour l'agrandir</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-[70vh] overflow-y-auto p-1">
             {allImages.map((imageUrl, idx) => (
               <div 
                 key={idx} 
-                className="relative group cursor-pointer hover:scale-105 transition-transform"
+                className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md border bg-muted"
                 onClick={() => handleImageClick(idx)}
               >
                 <img
                   src={imageUrl}
                   alt={`Corrigé - Page ${idx + 1}`}
-                  className="w-full h-auto rounded-lg shadow-md"
+                  className="w-full h-auto transition-transform duration-300 group-hover:scale-110 transform-gpu"
                   onContextMenu={(e) => e.preventDefault()}
                   draggable={false}
                 />
-                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0transition-all duration-200 ease-in-outgroup-hover:bg-black/20 pointer-events-none">
-                  <span className="text-white font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100"> 
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 ease-in-out group-hover:bg-black/20 pointer-events-none">
+                  <span className="text-white font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100 bg-black/40 px-2 py-1 rounded text-xs"> 
                     Page {idx + 1}
                   </span>
                 </div>
