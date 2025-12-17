@@ -316,18 +316,18 @@ const UESelection = () => {
         ))}
       </div>
 
-      {/* --- Lightbox CSS pur --- */}
+            {/* --- Lightbox CSS pur corrigé --- */}
       {galleryOpen && allImages.length > 0 && (
         <div
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4 overflow-auto"
           onClick={() => setGalleryOpen(false)}
         >
           <div
-            className="relative max-w-4xl max-h-full"
+            className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center"
             onClick={(e) => e.stopPropagation()}
           >
             <button
-              className="absolute top-2 right-2 text-white text-2xl font-bold z-50"
+              className="absolute top-2 right-2 text-white text-3xl font-bold z-50"
               onClick={() => setGalleryOpen(false)}
             >
               &times;
@@ -335,7 +335,7 @@ const UESelection = () => {
             <img
               src={allImages[lightboxIndex]}
               alt={`Page ${lightboxIndex + 1}`}
-              className="max-h-[85vh] w-auto mx-auto rounded shadow-lg"
+              className="max-w-full max-h-[85vh] object-contain rounded shadow-lg"
             />
             {allImages.length > 1 && (
               <div className="absolute inset-0 flex justify-between items-center px-4">
@@ -362,7 +362,6 @@ const UESelection = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
