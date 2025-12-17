@@ -31,9 +31,7 @@ const UESelection = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [exercicesDialogOpen, setExercicesDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [galleryOpen, setGalleryOpen] = useState(false);
   const [allImages, setAllImages] = useState<string[]>([]);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Précharger les images
   const preloadImages = (urls: string[]) => {
@@ -125,7 +123,6 @@ const UESelection = () => {
       const images = data.flatMap(c => c.image_urls || []);
       setAllImages(images);
       preloadImages(images);
-      setGalleryOpen(true);
       setExercicesDialogOpen(false);
       await supabase.from("consultations").insert({ corrige_id: data[0].id, user_id: profile?.id });
     }
@@ -212,6 +209,20 @@ const UESelection = () => {
             </div>
           </div>
         )}
+
+        {/* Affichage des images directement sous les exercices */}
+        {allImages.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-xl font-bold mb-4">
+              {selectedUE?.nom} - Exercice {selectedExercice?.numero}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allImages.map((url, idx) => (
+                <img key={idx} src={url} alt={`Page ${idx + 1}`} className="w-full h-auto border rounded-md" />
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* FOOTER */}
@@ -274,18 +285,6 @@ const UESelection = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Galerie CSS pure */}
-      {galleryOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-95 z-50 flex flex-col items-center justify-center overflow-y-auto p-4">
-          <button className="absolute top-4 right-4 text-white text-2xl" onClick={() => setGalleryOpen(false)}>✕</button>
-          {allImages.map((url, idx) => (
-            <div key={idx} className="mb-4 w-full max-w-4xl">
-              <img src={url} alt={`Page ${idx + 1}`} className="w-full h-auto" />
-            </div>
-          ))}
-        </div>
-      )}
 
     </div>
   );
