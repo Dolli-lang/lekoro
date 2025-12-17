@@ -19,6 +19,7 @@ interface Corrige { id: string; image_urls: string[]; }
 const UESelection = () => {
   const { profile } = useAuth();
   const { toast } = useToast();
+
   const [selectedUFR, setSelectedUFR] = useState<UFR | null>(null);
   const [departements, setDepartements] = useState<Departement[]>([]);
   const [selectedDepartement, setSelectedDepartement] = useState<Departement | null>(null);
@@ -37,32 +38,54 @@ const UESelection = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [allImages, setAllImages] = useState<string[]>([]);
 
-  // Fonction pour précharger les images (rend la navigation fluide dans le lightbox)
+  // Précharger les images pour le lightbox
   const preloadImages = (urls: string[]) => {
-    urls.forEach((url) => {
+    urls.forEach(url => {
       const img = new Image();
       img.src = url;
     });
   };
 
+  // Fetch initial data
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (profile?.ufr_id) {
-        const { data: ufrData } = await supabase.from("ufrs").select("*").eq("id", profile.ufr_id).maybeSingle();
-        if (ufrData) setSelectedUFR(ufrData);
-
-        const { data } = await supabase.from("departements").select("*").eq("ufr_id", profile.ufr_id).eq("visible", true).order("nom");
-        if (data) setDepartements(data);
+      if (!profile?.ufr_id) {
+        setLoading(false);
+        return;
       }
+
+      const { data: ufrData } = await supabase
+        .from("ufrs")
+        .select("*")
+        .eq("id", profile.ufr_id)
+        .maybeSingle();
+      if (ufrData) setSelectedUFR(ufrData);
+
+      const { data } = await supabase
+        .from("departements")
+        .select("*")
+        .eq("ufr_id", profile.ufr_id)
+        .eq("visible", true)
+        .order("nom");
+      if (data) setDepartements(data);
+
       setLoading(false);
     };
+
     if (profile) fetchInitialData();
   }, [profile]);
 
   const handleDepartementClick = async (dept: Departement) => {
     setSelectedDepartement(dept);
     setLoading(true);
-    const { data } = await supabase.from("ues").select("*").eq("discipline_id", dept.id).eq("visible", true).order("nom");
+
+    const { data } = await supabase
+      .from("ues")
+      .select("*")
+      .eq("discipline_id", dept.id)
+      .eq("visible", true)
+      .order("nom");
+
     if (data) setUes(data);
     setLoading(false);
   };
@@ -76,45 +99,67 @@ const UESelection = () => {
 
   const handleTypeSelect = async (type: string) => {
     setSelectedType(type);
-    if (selectedUE) {
-      const { data } = await supabase.from("exercices").select("annee").eq("ue_id", selectedUE.id).eq("type", type).eq("visible", true);
-      if (data) setAnnees([...new Set(data.map(e => e.annee))].sort().reverse());
-    }
+    if (!selectedUE) return;
+
+    const { data } = await supabase
+      .from("exercices")
+      .select("annee")
+      .eq("ue_id", selectedUE.id)
+      .eq("type", type)
+      .eq("visible", true);
+
+    if (data) setAnnees([...new Set(data.map(e => e.annee))].sort().reverse());
   };
 
   const handleAnneeSelect = async (annee: string) => {
     setSelectedAnnee(annee);
-    if (selectedUE && selectedType) {
-      const { data } = await supabase.from("exercices").select("*").eq("ue_id", selectedUE.id).eq("type", selectedType).eq("annee", annee).eq("visible", true).order("numero");
-      if (data) {
-        setExercices(data);
-        setExercicesDialogOpen(true);
-        setDialogOpen(false);
-      }
+    if (!selectedUE || !selectedType) return;
+
+    const { data } = await supabase
+      .from("exercices")
+      .select("*")
+      .eq("ue_id", selectedUE.id)
+      .eq("type", selectedType)
+      .eq("annee", annee)
+      .eq("visible", true)
+      .order("numero");
+
+    if (data) {
+      setExercices(data);
+      setExercicesDialogOpen(true);
+      setDialogOpen(false);
     }
   };
 
   const handleExerciceSelect = async (ex: Exercice) => {
     setSelectedExercice(ex);
-    const { data } = await supabase.from("corriges").select("*").eq("exercice_id", ex.id).eq("visible", true);
-    if (data) {
-      const images = data.flatMap((c) => c.image_urls || []);
+
+    const { data } = await supabase
+      .from("corriges")
+      .select("*")
+      .eq("exercice_id", ex.id)
+      .eq("visible", true);
+
+    if (data && data.length > 0) {
+      const images = data.flatMap(c => c.image_urls || []);
       setAllImages(images);
-      preloadImages(images); // Préchargement pour la fluidité
+      preloadImages(images);
+
       setGalleryOpen(true);
       setExercicesDialogOpen(false);
-      await supabase.from("consultations").insert({ corrige_id: data[0]?.id, user_id: profile?.id });
+
+      await supabase.from("consultations").insert({ corrige_id: data[0].id, user_id: profile?.id });
     }
   };
 
   const handleImageClick = (idx: number) => {
     setLightboxIndex(idx);
-    setLightboxOpen(true); // Ne ferme pas la galerie
+    setLightboxOpen(true);
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* --- HEADER --- */}
+      {/* HEADER */}
       <header className="border-b bg-card px-4 py-3 sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
@@ -127,7 +172,9 @@ const UESelection = () => {
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:inline">Bienvenue, <strong>{profile?.full_name || "Utilisateur"}</strong></span>
+            <span className="text-sm text-muted-foreground hidden sm:inline">
+              Bienvenue, <strong>{profile?.full_name || "Utilisateur"}</strong>
+            </span>
             <Button variant="outline" size="sm" className="gap-2">
               <MessageSquare className="w-4 h-4" /> Contacter l'admin
             </Button>
@@ -135,7 +182,7 @@ const UESelection = () => {
         </div>
       </header>
 
-      {/* --- HERO SECTION --- */}
+      {/* HERO */}
       <section className="bg-gradient-to-b from-primary/5 to-background pt-12 pb-8 px-4 text-center">
         <div className="container mx-auto max-w-3xl">
           <h1 className="text-4xl font-extrabold tracking-tight mb-4">Disciplines et UEs</h1>
@@ -148,10 +195,12 @@ const UESelection = () => {
         </div>
       </section>
 
-      {/* --- MAIN CONTENT --- */}
+      {/* MAIN */}
       <main className="flex-grow container mx-auto px-4 py-8">
         {loading ? (
-          <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-primary" /></div>
+          <div className="flex justify-center py-20">
+            <Loader2 className="w-10 h-10 animate-spin text-primary" />
+          </div>
         ) : (
           <>
             {!selectedDepartement ? (
@@ -160,32 +209,54 @@ const UESelection = () => {
                   {selectedUFR?.nom || "Sélectionnez un département"}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {departements.map((dept) => (
-                    <Card key={dept.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => handleDepartementClick(dept)}>
+                  {departements.map(dept => (
+                    <Card
+                      key={dept.id}
+                      className="cursor-pointer hover:shadow-lg transition-all"
+                      onClick={() => handleDepartementClick(dept)}
+                    >
                       <CardHeader>
-                        {dept.image_url && <img src={dept.image_url} alt={dept.nom} className="w-full h-32 object-cover rounded-md mb-3" />}
-                        <CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-primary" /> {dept.nom}</CardTitle>
+                        {dept.image_url && (
+                          <img src={dept.image_url} alt={dept.nom} className="w-full h-32 object-cover rounded-md mb-3" />
+                        )}
+                        <CardTitle className="flex items-center gap-2">
+                          <BookOpen className="w-5 h-5 text-primary" /> {dept.nom}
+                        </CardTitle>
                         {dept.description && <CardDescription>{dept.description}</CardDescription>}
                       </CardHeader>
-                      <CardContent><Button variant="outline" className="w-full">Voir les UEs</Button></CardContent>
+                      <CardContent>
+                        <Button variant="outline" className="w-full">Voir les UEs</Button>
+                      </CardContent>
                     </Card>
                   ))}
                 </div>
               </div>
             ) : (
               <div className="space-y-6">
-                <Button variant="ghost" onClick={() => { setSelectedDepartement(null); setUes([]); }} className="mb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => { setSelectedDepartement(null); setUes([]); }}
+                  className="mb-4"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" /> Retour aux départements
                 </Button>
                 <h2 className="text-2xl font-bold bg-accent/10 p-4 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {ues.map((ue) => (
-                    <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => handleUEClick(ue)}>
+                  {ues.map(ue => (
+                    <Card
+                      key={ue.id}
+                      className="cursor-pointer hover:shadow-lg transition-all"
+                      onClick={() => handleUEClick(ue)}
+                    >
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-accent" /> {ue.nom}</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-accent" /> {ue.nom}
+                        </CardTitle>
                         {ue.description && <CardDescription>{ue.description}</CardDescription>}
                       </CardHeader>
-                      <CardContent><Button variant="outline" className="w-full">Voir les corrigés</Button></CardContent>
+                      <CardContent>
+                        <Button variant="outline" className="w-full">Voir les corrigés</Button>
+                      </CardContent>
                     </Card>
                   ))}
                 </div>
@@ -195,12 +266,14 @@ const UESelection = () => {
         )}
       </main>
 
-      {/* --- FOOTER --- */}
+      {/* FOOTER */}
       <footer className="bg-card border-t py-12 px-4 mt-12">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <h3 className="font-bold text-lg mb-4">Le Koro</h3>
-            <p className="text-sm text-muted-foreground">Accédez à des milliers de corrigés pour réussir vos études en Math-Info.</p>
+            <p className="text-sm text-muted-foreground">
+              Accédez à des milliers de corrigés pour réussir vos études en Math-Info.
+            </p>
           </div>
           <div>
             <h4 className="font-semibold mb-4 text-sm uppercase">Navigation</h4>
@@ -222,12 +295,12 @@ const UESelection = () => {
         </div>
       </footer>
 
-      {/* --- MODALES --- */}
-
-      {/* Dialog Type/Année */}
+      {/* MODALES */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{selectedUE?.nom}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{selectedUE?.nom}</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <Button variant={selectedType === "TD" ? "default" : "outline"} onClick={() => handleTypeSelect("TD")}>TD</Button>
@@ -243,13 +316,19 @@ const UESelection = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog Liste Exercices */}
       <Dialog open={exercicesDialogOpen} onOpenChange={setExercicesDialogOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{selectedUE?.nom} - {selectedType} {selectedAnnee}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{selectedUE?.nom} - {selectedType} {selectedAnnee}</DialogTitle>
+          </DialogHeader>
           <div className="grid gap-2 py-4">
-            {exercices.map((ex) => (
-              <Button key={ex.id} variant="outline" className="justify-start h-auto py-3 px-4" onClick={() => handleExerciceSelect(ex)}>
+            {exercices.map(ex => (
+              <Button
+                key={ex.id}
+                variant="outline"
+                className="justify-start h-auto py-3 px-4"
+                onClick={() => handleExerciceSelect(ex)}
+              >
                 <div className="text-left font-bold">Exercice {ex.numero}</div>
               </Button>
             ))}
@@ -257,44 +336,15 @@ const UESelection = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Galerie (FIX TREMBLEMENT ET PERSISTANCE) */}
       <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
         <DialogContent className="max-w-4xl max-h-[85vh]">
-          <DialogHeader><DialogTitle>{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle>
+          </DialogHeader>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto p-1">
             {allImages.map((url, idx) => (
-              <div 
-                key={idx} 
+              <div
+                key={idx}
                 className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md border"
                 onClick={() => handleImageClick(idx)}
               >
-                <img
-                  src={url}
-                  alt={`Page ${idx + 1}`}
-                  className="w-full h-auto transition-transform duration-300 group-hover:scale-110 transform-gpu"
-                  onContextMenu={(e) => e.preventDefault()}
-                  draggable={false}
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 group-hover:bg-black/20 pointer-events-none">
-                  <span className="text-white font-medium opacity-0 group-hover:opacity-100 bg-black/40 px-3 py-1 rounded text-xs">
-                    Page {idx + 1}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Lightbox */}
-      <ImageLightbox 
-        images={allImages} 
-        initialIndex={lightboxIndex} 
-        isOpen={lightboxOpen} 
-        onClose={() => setLightboxOpen(false)} 
-      />
-    </div>
-  );
-};
-
-export default UESelection;
