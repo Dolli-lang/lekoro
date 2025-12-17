@@ -45,67 +45,68 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
   return (
     <div 
-      className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black flex flex-col"
+      className="fixed inset-0 bg-black"
       style={{ zIndex: 999999 }}
     >
       {/* Header */}
-      <div className="flex justify-between items-center p-3 shrink-0">
+      <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-3 z-10">
         <div className="text-white text-sm font-medium bg-white/10 px-3 py-1.5 rounded-full">
           {currentIndex + 1} / {images.length}
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="text-white hover:bg-white/20 rounded-full h-10 w-10"
+          className="text-white rounded-full h-10 w-10"
           onClick={onClose}
         >
           <X className="w-6 h-6" />
         </Button>
       </div>
 
-      {/* Main content - image fills available space */}
-      <div className="flex-1 flex items-center justify-center relative min-h-0 px-4">
-        {/* Navigation buttons */}
-        {images.length > 1 && (
+      {/* Image container - absolutely centered */}
+      <div 
+        className="absolute inset-0 flex items-center justify-center"
+        style={{ top: 60, bottom: images.length > 1 ? 80 : 0 }}
+      >
+        <img
+          src={images[currentIndex]}
+          alt={`Image ${currentIndex + 1}`}
+          className="max-w-[95vw] max-h-full object-contain"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+          draggable={false}
+        />
+      </div>
+
+      {/* Navigation buttons */}
+      {images.length > 1 && (
+        <>
           <button
             className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 text-white w-12 h-12 rounded-full z-10 flex items-center justify-center"
             onClick={handlePrevious}
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
-        )}
-
-        <img
-          key={currentIndex}
-          src={images[currentIndex]}
-          alt={`Image ${currentIndex + 1}`}
-          className="max-w-[95vw] max-h-[85vh] w-auto h-auto object-contain select-none pointer-events-none"
-          onContextMenu={(e) => e.preventDefault()}
-          draggable={false}
-        />
-
-        {images.length > 1 && (
           <button
             className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 text-white w-12 h-12 rounded-full z-10 flex items-center justify-center"
             onClick={handleNext}
           >
             <ChevronRight className="w-7 h-7" />
           </button>
-        )}
-      </div>
+        </>
+      )}
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="py-3 px-4 shrink-0 flex justify-center">
+        <div className="absolute bottom-0 left-0 right-0 py-3 px-4 flex justify-center z-10">
           <div className="flex gap-2 overflow-x-auto max-w-full">
             {images.map((img, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${
+                className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 ${
                   idx === currentIndex 
-                    ? "border-primary ring-2 ring-primary/50 scale-110" 
-                    : "border-transparent opacity-50 hover:opacity-100"
+                    ? "border-primary" 
+                    : "border-transparent opacity-50"
                 }`}
               >
                 <img
