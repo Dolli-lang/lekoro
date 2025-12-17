@@ -82,7 +82,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
           key={currentIndex}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          className="max-w-[90vw] max-h-[70vh] w-auto h-auto object-contain select-none"
+          className="max-w-[95vw] max-h-[85vh] w-auto h-auto object-contain select-none pointer-events-none"
           onContextMenu={(e) => e.preventDefault()}
           draggable={false}
         />
