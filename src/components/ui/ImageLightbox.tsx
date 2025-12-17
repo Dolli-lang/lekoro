@@ -68,11 +68,8 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         {/* Navigation buttons */}
         {images.length > 1 && (
           <button
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 text-white hover:bg-white/30 w-12 h-12 rounded-full z-10 flex items-center justify-center"
-            onClick={(e) => {
-              e.stopPropagation();
-              handlePrevious();
-            }}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 text-white w-12 h-12 rounded-full z-10 flex items-center justify-center"
+            onClick={handlePrevious}
           >
             <ChevronLeft className="w-7 h-7" />
           </button>
@@ -89,11 +86,8 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
         {images.length > 1 && (
           <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 text-white hover:bg-white/30 w-12 h-12 rounded-full z-10 flex items-center justify-center"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNext();
-            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 text-white w-12 h-12 rounded-full z-10 flex items-center justify-center"
+            onClick={handleNext}
           >
             <ChevronRight className="w-7 h-7" />
           </button>
