@@ -400,8 +400,8 @@ const UESelection = () => {
                   onContextMenu={(e) => e.preventDefault()}
                   draggable={false}
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors rounded-lg flex items-center justify-center">
-                  <span className="opacity-0 group-hover:opacity-100 text-white font-medium transition-opacity">
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0transition-all duration-200 ease-in-outgroup-hover:bg-black/20 pointer-events-none">
+                  <span className="text-white font-medium opacity-0 transition-opacity duration-200 group-hover:opacity-100"> 
                     Page {idx + 1}
                   </span>
                 </div>
