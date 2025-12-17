@@ -12,30 +12,11 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, FileText, Loader2, ArrowLeft } from "lucide-react";
 
 // ================= INTERFACES =================
-interface UFR {
-  id: string;
-  nom: string;
-}
-
-interface Departement {
-  id: string;
-  nom: string;
-  description: string | null;
-  image_url: string | null;
-}
-
-interface UE {
-  id: string;
-  nom: string;
-  description: string | null;
-}
-
-interface Exercice {
-  id: string;
-  numero: number;
-  type: string;
-  annee: string;
-}
+interface UFR { id: string; nom: string; }
+interface Departement { id: string; nom: string; description: string | null; image_url: string | null; }
+interface UE { id: string; nom: string; description: string | null; }
+interface Exercice { id: string; numero: number; type: string; annee: string; }
+interface Corrige { id: string; image_urls: string[]; }
 
 const UESelection = () => {
   const { profile } = useAuth();
@@ -49,13 +30,13 @@ const UESelection = () => {
   const [selectedDepartement, setSelectedDepartement] = useState<Departement | null>(null);
   const [selectedUE, setSelectedUE] = useState<UE | null>(null);
   const [selectedType, setSelectedType] = useState("");
+  const [annees, setAnnees] = useState<string[]>([]);
   const [selectedAnnee, setSelectedAnnee] = useState("");
 
-  // === Lightbox CSS (état minimal)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [images, setImages] = useState<string[]>([]);
 
-  // ================= FETCH =================
+  // ================= FETCH INITIAL =================
   useEffect(() => {
     const init = async () => {
       if (!profile?.ufr_id) return;
@@ -91,6 +72,23 @@ const UESelection = () => {
     setUes(data || []);
   };
 
+  // ================= ANNEES DYNAMIQUES =================
+  const handleTypeSelect = async (type: string) => {
+    setSelectedType(type);
+    setSelectedAnnee("");
+    setAnnees([]);
+    if (!selectedUE) return;
+
+    const { data } = await supabase
+      .from("exercices")
+      .select("annee")
+      .eq("ue_id", selectedUE.id)
+      .eq("type", type)
+      .eq("visible", true);
+
+    if (data) setAnnees([...new Set(data.map(e => e.annee))].sort().reverse());
+  };
+
   const loadExercices = async (ue: UE, type: string, annee: string) => {
     const { data } = await supabase
       .from("exercices")
@@ -118,39 +116,24 @@ const UESelection = () => {
     }
   };
 
-  // ================= RENDER =================
   return (
     <div className="min-h-screen bg-background">
-      {/* ================= HEADER ================= */}
-      <header className="border-b bg-card px-6 py-4 font-bold text-xl">
-        Le Koro — Corrigés
-      </header>
+      <header className="border-b bg-card px-6 py-4 font-bold text-xl">Le Koro — Corrigés</header>
 
-      {/* ================= MAIN ================= */}
       <main className="container mx-auto px-4 py-6">
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin w-10 h-10" />
-          </div>
+          <div className="flex justify-center py-20"><Loader2 className="animate-spin w-10 h-10" /></div>
         ) : (
           <>
-            {/* ================= DEPARTEMENTS ================= */}
             {!selectedDepartement && (
               <>
-                <h2 className="text-2xl font-bold mb-6">
-                  {selectedUFR?.nom}
-                </h2>
+                <h2 className="text-2xl font-bold mb-6">{selectedUFR?.nom}</h2>
                 <div className="grid md:grid-cols-3 gap-6">
-                  {departements.map((d) => (
+                  {departements.map(d => (
                     <Card key={d.id} onClick={() => loadUEs(d)}>
                       <CardHeader>
-                        <CardTitle className="flex gap-2 items-center">
-                          <BookOpen className="w-5 h-5" />
-                          {d.nom}
-                        </CardTitle>
-                        {d.description && (
-                          <CardDescription>{d.description}</CardDescription>
-                        )}
+                        <CardTitle className="flex gap-2 items-center"><BookOpen className="w-5 h-5" /> {d.nom}</CardTitle>
+                        {d.description && <CardDescription>{d.description}</CardDescription>}
                       </CardHeader>
                     </Card>
                   ))}
@@ -158,27 +141,18 @@ const UESelection = () => {
               </>
             )}
 
-            {/* ================= UEs ================= */}
             {selectedDepartement && !selectedUE && (
               <>
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelectedDepartement(null)}
-                >
+                <Button variant="ghost" onClick={() => setSelectedDepartement(null)}>
                   <ArrowLeft className="mr-2 w-4 h-4" /> Retour
                 </Button>
 
                 <div className="grid md:grid-cols-3 gap-6 mt-6">
-                  {ues.map((ue) => (
+                  {ues.map(ue => (
                     <Card key={ue.id} onClick={() => setSelectedUE(ue)}>
                       <CardHeader>
-                        <CardTitle className="flex gap-2 items-center">
-                          <FileText className="w-5 h-5" />
-                          {ue.nom}
-                        </CardTitle>
-                        {ue.description && (
-                          <CardDescription>{ue.description}</CardDescription>
-                        )}
+                        <CardTitle className="flex gap-2 items-center"><FileText className="w-5 h-5" /> {ue.nom}</CardTitle>
+                        {ue.description && <CardDescription>{ue.description}</CardDescription>}
                       </CardHeader>
                     </Card>
                   ))}
@@ -186,77 +160,54 @@ const UESelection = () => {
               </>
             )}
 
-            {/* ================= EXERCICES ================= */}
             {selectedUE && (
               <div className="space-y-4">
                 <div className="flex gap-2">
-                  <Button onClick={() => setSelectedType("TD")}>TD</Button>
-                  <Button onClick={() => setSelectedType("Examen")}>Examen</Button>
+                  <Button onClick={() => handleTypeSelect("TD")}>TD</Button>
+                  <Button onClick={() => handleTypeSelect("Examen")}>Examen</Button>
                 </div>
 
-                <input
-                  className="border px-3 py-2"
-                  placeholder="Année (ex: 2023)"
-                  value={selectedAnnee}
-                  onChange={(e) => setSelectedAnnee(e.target.value)}
-                />
-
-                <Button
-                  onClick={() =>
-                    loadExercices(selectedUE, selectedType, selectedAnnee)
-                  }
-                >
-                  Charger exercices
-                </Button>
-
-                {exercices.map((ex) => (
-                  <Button
-                    key={ex.id}
-                    variant="outline"
-                    onClick={() => openCorrige(ex.id)}
+                {annees.length > 0 && (
+                  <select
+                    className="border px-3 py-2"
+                    value={selectedAnnee}
+                    onChange={(e) => {
+                      setSelectedAnnee(e.target.value);
+                      loadExercices(selectedUE, selectedType, e.target.value);
+                    }}
                   >
-                    Exercice {ex.numero}
-                  </Button>
-                ))}
+                    <option value="">Choisir une année</option>
+                    {annees.map(a => (
+                      <option key={a} value={a}>{a}</option>
+                    ))}
+                  </select>
+                )}
+
+                <div className="space-y-2 mt-4">
+                  {exercices.map(ex => (
+                    <Button key={ex.id} variant="outline" onClick={() => openCorrige(ex.id)}>
+                      Exercice {ex.numero}
+                    </Button>
+                  ))}
+                </div>
               </div>
             )}
           </>
         )}
       </main>
 
-      {/* ================= LIGHTBOX CSS PUR ================= */}
+      {/* ================= LIGHTBOX CSS ================= */}
       {lightboxIndex !== null && (
-        <div
-          className="fixed inset-0 bg-black/95 z-50 overflow-auto"
-          onClick={() => setLightboxIndex(null)}
-        >
-          <div
-            className="max-w-5xl mx-auto p-6"
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="fixed inset-0 bg-black/95 z-50 overflow-auto" onClick={() => setLightboxIndex(null)}>
+          <div className="max-w-5xl mx-auto p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between mb-4">
               <Button onClick={() => setLightboxIndex(null)}>Fermer</Button>
               <div className="flex gap-2">
-                <Button
-                  disabled={lightboxIndex === 0}
-                  onClick={() => setLightboxIndex((i) => (i! - 1))}
-                >
-                  ←
-                </Button>
-                <Button
-                  disabled={lightboxIndex === images.length - 1}
-                  onClick={() => setLightboxIndex((i) => (i! + 1))}
-                >
-                  →
-                </Button>
+                <Button disabled={lightboxIndex === 0} onClick={() => setLightboxIndex(i => i! - 1)}>←</Button>
+                <Button disabled={lightboxIndex === images.length - 1} onClick={() => setLightboxIndex(i => i! + 1)}>→</Button>
               </div>
             </div>
-
-            <img
-              src={images[lightboxIndex]}
-              alt="Corrigé"
-              className="w-full h-auto bg-white"
-            />
+            <img src={images[lightboxIndex]} alt="Corrigé" className="w-full h-auto bg-white" />
           </div>
         </div>
       )}
