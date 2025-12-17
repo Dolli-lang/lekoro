@@ -37,7 +37,14 @@ const UESelection = () => {
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [allImages, setAllImages] = useState<string[]>([]);
 
-  // --- LOGIQUE DE DONNÉES ---
+  // Fonction pour précharger les images (rend la navigation fluide dans le lightbox)
+  const preloadImages = (urls: string[]) => {
+    urls.forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+  };
+
   useEffect(() => {
     const fetchInitialData = async () => {
       if (profile?.ufr_id) {
@@ -93,22 +100,22 @@ const UESelection = () => {
     if (data) {
       const images = data.flatMap((c) => c.image_urls || []);
       setAllImages(images);
+      preloadImages(images); // Préchargement pour la fluidité
       setGalleryOpen(true);
       setExercicesDialogOpen(false);
       await supabase.from("consultations").insert({ corrige_id: data[0]?.id, user_id: profile?.id });
     }
   };
 
-  // --- MODIFICATION ICI : On ne ferme plus la galerie ---
   const handleImageClick = (idx: number) => {
     setLightboxIndex(idx);
-    setLightboxOpen(true); // La galerie reste ouverte en arrière-plan
+    setLightboxOpen(true); // Ne ferme pas la galerie
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background font-sans">
+    <div className="min-h-screen flex flex-col bg-background">
       {/* --- HEADER --- */}
-      <header className="border-b bg-card px-4 py-3 sticky top-0 z-50 shadow-sm">
+      <header className="border-b bg-card px-4 py-3 sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center gap-4">
             <span className="font-bold text-xl text-primary">Le Koro</span>
@@ -135,7 +142,7 @@ const UESelection = () => {
           <p className="text-muted-foreground text-lg mb-4">
             Sélectionnez un UFR, puis un département, puis une UE pour accéder aux TD et examens.
           </p>
-          <div className="bg-primary/10 inline-block px-4 py-2 rounded-full text-primary font-medium text-sm">
+          <div className="bg-primary/10 inline-block px-4 py-1 rounded-full text-primary font-medium text-sm">
             Plateforme dédiée aux étudiants en Mathématiques et Informatique.
           </div>
         </div>
@@ -149,16 +156,16 @@ const UESelection = () => {
           <>
             {!selectedDepartement ? (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold bg-muted p-4 rounded-lg border-l-4 border-primary shadow-sm">
+                <h2 className="text-2xl font-bold bg-muted p-4 rounded-lg border-l-4 border-primary">
                   {selectedUFR?.nom || "Sélectionnez un département"}
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {departements.map((dept) => (
-                    <Card key={dept.id} className="cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1" onClick={() => handleDepartementClick(dept)}>
+                    <Card key={dept.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => handleDepartementClick(dept)}>
                       <CardHeader>
-                        {dept.image_url && <img src={dept.image_url} alt={dept.nom} className="w-full h-40 object-cover rounded-md mb-3" />}
+                        {dept.image_url && <img src={dept.image_url} alt={dept.nom} className="w-full h-32 object-cover rounded-md mb-3" />}
                         <CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-primary" /> {dept.nom}</CardTitle>
-                        {dept.description && <CardDescription className="line-clamp-2">{dept.description}</CardDescription>}
+                        {dept.description && <CardDescription>{dept.description}</CardDescription>}
                       </CardHeader>
                       <CardContent><Button variant="outline" className="w-full">Voir les UEs</Button></CardContent>
                     </Card>
@@ -167,18 +174,18 @@ const UESelection = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                <Button variant="ghost" onClick={() => { setSelectedDepartement(null); setUes([]); }} className="mb-4 hover:bg-accent/10">
+                <Button variant="ghost" onClick={() => { setSelectedDepartement(null); setUes([]); }} className="mb-4">
                   <ArrowLeft className="w-4 h-4 mr-2" /> Retour aux départements
                 </Button>
-                <h2 className="text-2xl font-bold bg-accent/10 p-4 rounded-lg border-l-4 border-accent shadow-sm">{selectedDepartement.nom}</h2>
+                <h2 className="text-2xl font-bold bg-accent/10 p-4 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {ues.map((ue) => (
-                    <Card key={ue.id} className="cursor-pointer hover:shadow-xl transition-all" onClick={() => handleUEClick(ue)}>
+                    <Card key={ue.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => handleUEClick(ue)}>
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-accent" /> {ue.nom}</CardTitle>
-                        {ue.description && <CardDescription className="line-clamp-2">{ue.description}</CardDescription>}
+                        {ue.description && <CardDescription>{ue.description}</CardDescription>}
                       </CardHeader>
-                      <CardContent><Button variant="outline" className="w-full hover:bg-accent hover:text-white transition-colors">Voir les corrigés</Button></CardContent>
+                      <CardContent><Button variant="outline" className="w-full">Voir les corrigés</Button></CardContent>
                     </Card>
                   ))}
                 </div>
@@ -189,27 +196,27 @@ const UESelection = () => {
       </main>
 
       {/* --- FOOTER --- */}
-      <footer className="bg-card border-t py-12 px-4 mt-auto">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
-          <div className="space-y-4">
-            <h3 className="font-bold text-xl text-primary">Le Koro</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">Plateforme dédiée aux étudiants en Mathématiques et Informatique. Accédez à des milliers de corrigés pour réussir vos études.</p>
+      <footer className="bg-card border-t py-12 px-4 mt-12">
+        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div>
+            <h3 className="font-bold text-lg mb-4">Le Koro</h3>
+            <p className="text-sm text-muted-foreground">Accédez à des milliers de corrigés pour réussir vos études en Math-Info.</p>
           </div>
           <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase tracking-widest text-foreground">Navigation</h4>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">FAQ</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
+            <h4 className="font-semibold mb-4 text-sm uppercase">Navigation</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#" className="hover:text-primary">FAQ</a></li>
+              <li><a href="#" className="hover:text-primary">Contact</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase tracking-widest text-foreground">Légal</h4>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary transition-colors">Confidentialité</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Conditions d'utilisation</a></li>
+            <h4 className="font-semibold mb-4 text-sm uppercase">Légal</h4>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li><a href="#" className="hover:text-primary">Confidentialité</a></li>
+              <li><a href="#" className="hover:text-primary">Conditions d'utilisation</a></li>
             </ul>
           </div>
-          <div className="text-sm text-muted-foreground md:text-right flex flex-col justify-end">
+          <div className="text-sm text-muted-foreground md:text-right">
             <p>© 2025 Le Koro. Tous droits réservés.</p>
           </div>
         </div>
@@ -219,24 +226,18 @@ const UESelection = () => {
 
       {/* Dialog Type/Année */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent>
           <DialogHeader><DialogTitle>{selectedUE?.nom}</DialogTitle></DialogHeader>
-          <div className="space-y-6 py-4">
-            <div className="space-y-3">
-              <label className="text-sm font-semibold">Type de document</label>
-              <div className="grid grid-cols-2 gap-4">
-                <Button variant={selectedType === "TD" ? "default" : "outline"} onClick={() => handleTypeSelect("TD")} className="w-full">TD</Button>
-                <Button variant={selectedType === "Examen" ? "default" : "outline"} onClick={() => handleTypeSelect("Examen")} className="w-full">Examen</Button>
-              </div>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Button variant={selectedType === "TD" ? "default" : "outline"} onClick={() => handleTypeSelect("TD")}>TD</Button>
+              <Button variant={selectedType === "Examen" ? "default" : "outline"} onClick={() => handleTypeSelect("Examen")}>Examen</Button>
             </div>
             {selectedType && annees.length > 0 && (
-              <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                <label className="text-sm font-semibold">Année académique</label>
-                <Select value={selectedAnnee} onValueChange={handleAnneeSelect}>
-                  <SelectTrigger className="w-full"><SelectValue placeholder="Choisir une année" /></SelectTrigger>
-                  <SelectContent className="max-h-[200px]">{annees.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
+              <Select value={selectedAnnee} onValueChange={handleAnneeSelect}>
+                <SelectTrigger><SelectValue placeholder="Choisir une année" /></SelectTrigger>
+                <SelectContent>{annees.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
+              </Select>
             )}
           </div>
         </DialogContent>
@@ -244,45 +245,39 @@ const UESelection = () => {
 
       {/* Dialog Liste Exercices */}
       <Dialog open={exercicesDialogOpen} onOpenChange={setExercicesDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent>
           <DialogHeader><DialogTitle>{selectedUE?.nom} - {selectedType} {selectedAnnee}</DialogTitle></DialogHeader>
-          <div className="grid gap-3 py-4 max-h-[60vh] overflow-y-auto pr-2">
+          <div className="grid gap-2 py-4">
             {exercices.map((ex) => (
-              <Button key={ex.id} variant="outline" className="justify-start h-auto py-4 px-5 hover:border-primary transition-all group" onClick={() => handleExerciceSelect(ex)}>
-                <div className="text-left">
-                  <div className="font-bold group-hover:text-primary transition-colors">Exercice {ex.numero}</div>
-                  {ex.description && <div className="text-xs text-muted-foreground mt-1">{ex.description}</div>}
-                </div>
+              <Button key={ex.id} variant="outline" className="justify-start h-auto py-3 px-4" onClick={() => handleExerciceSelect(ex)}>
+                <div className="text-left font-bold">Exercice {ex.numero}</div>
               </Button>
             ))}
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Galerie des Corrigés (AVEC FIX TREMBLEMENT ET PERSISTANCE) */}
+      {/* Galerie (FIX TREMBLEMENT ET PERSISTANCE) */}
       <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="text-xl">{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground mb-4">Cliquez sur une page pour l'afficher en plein écran sans fermer cette liste.</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6 overflow-y-auto p-2 pb-6">
+        <DialogContent className="max-w-4xl max-h-[85vh]">
+          <DialogHeader><DialogTitle>{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle></DialogHeader>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto p-1">
             {allImages.map((url, idx) => (
               <div 
                 key={idx} 
-                className="relative group cursor-pointer overflow-hidden rounded-xl shadow-md border bg-muted aspect-[3/4]"
+                className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md border"
                 onClick={() => handleImageClick(idx)}
               >
                 <img
                   src={url}
                   alt={`Page ${idx + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 transform-gpu"
+                  className="w-full h-auto transition-transform duration-300 group-hover:scale-110 transform-gpu"
                   onContextMenu={(e) => e.preventDefault()}
                   draggable={false}
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/30 pointer-events-none">
-                  <span className="text-white font-bold opacity-0 group-hover:opacity-100 bg-primary/80 px-4 py-2 rounded-full text-xs shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
-                    Agrandir Page {idx + 1}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 group-hover:bg-black/20 pointer-events-none">
+                  <span className="text-white font-medium opacity-0 group-hover:opacity-100 bg-black/40 px-3 py-1 rounded text-xs">
+                    Page {idx + 1}
                   </span>
                 </div>
               </div>
@@ -291,7 +286,7 @@ const UESelection = () => {
         </DialogContent>
       </Dialog>
 
-      {/* L'image en grand (Lightbox) qui s'affiche AU-DESSUS de la galerie */}
+      {/* Lightbox */}
       <ImageLightbox 
         images={allImages} 
         initialIndex={lightboxIndex} 
