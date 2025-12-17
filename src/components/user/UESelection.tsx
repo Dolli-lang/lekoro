@@ -337,41 +337,44 @@ const UESelection = () => {
       </Dialog>
 
       <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
-        <DialogContent className="max-w-4xl max-h-[85vh]">
-          <DialogHeader>
-            <DialogTitle>{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto p-1">
-            {allImages.map((url, idx) => (
-              <div
-                key={idx}
-                className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md border"
-                onClick={() => handleImageClick(idx)}
-              >
-                <img
-                  src={url}
-                  alt={`Page ${idx + 1}`}
-                  className="w-full h-auto transition-transform duration-300 group-hover:scale-110 transform-gpu"
-                  onContextMenu={(e) => e.preventDefault()}
-                  draggable={false}
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 group-hover:bg-black/20 pointer-events-none">
-                  <span className="text-white font-medium opacity-0 group-hover:opacity-100 bg-black/40 px-3 py-1 rounded text-xs">
-                    Page {idx + 1}
-                  </span>
+               {/* Galerie simplifiée */}
+        <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+          <DialogContent className="max-w-4xl max-h-[85vh]">
+            <DialogHeader>
+              <DialogTitle>{selectedUE?.nom} - Exercice {selectedExercice?.numero}</DialogTitle>
+            </DialogHeader>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 overflow-y-auto p-1">
+              {allImages.map((url, idx) => (
+                <div
+                  key={idx}
+                  className="relative cursor-pointer overflow-hidden rounded-lg shadow-md border"
+                  onClick={() => handleImageClick(idx)}
+                >
+                  <img
+                    src={url}
+                    alt={`Page ${idx + 1}`}
+                    className="w-full h-auto"
+                    onContextMenu={(e) => e.preventDefault()}
+                    draggable={false}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-opacity duration-200 hover:bg-black/20 pointer-events-none">
+                    <span className="text-white font-medium bg-black/40 px-3 py-1 rounded text-xs">
+                      Page {idx + 1}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <ImageLightbox
-        images={allImages}
-        initialIndex={lightboxIndex}
-        isOpen={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-      />
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Lightbox simplifié */}
+        <ImageLightbox
+          images={allImages}
+          initialIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={() => setLightboxOpen(false)}
+        />
     </div>
   );
 };
