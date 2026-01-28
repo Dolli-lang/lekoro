@@ -8,12 +8,18 @@ interface Consultation {
   id: string;
   viewed_at: string;
   corriges: {
-    type: string;
-    annee: string;
+    id: string;
+    ue_id: string;
+    exercice_id: string | null;
     ues: {
       nom: string;
-    };
-  };
+    } | null;
+    exercices: {
+      type: string;
+      annee: string;
+      numero: number;
+    } | null;
+  } | null;
 }
 
 const UserHistory = () => {
@@ -27,10 +33,10 @@ const UserHistory = () => {
 
       const { data } = await supabase
         .from("consultations")
-        .select("*, corriges(type, annee, ues(nom))")
+        .select("id, viewed_at, corriges(id, ue_id, exercice_id, ues(nom), exercices(type, annee, numero))")
         .eq("user_id", user.id)
         .order("viewed_at", { ascending: false })
-        .limit(20);
+        .limit(50);
 
       if (data) {
         setConsultations(data as any);
@@ -49,6 +55,15 @@ const UserHistory = () => {
     );
   }
 
+  if (consultations.length === 0) {
+    return (
+      <div className="text-center py-8 text-muted-foreground">
+        <p>Aucune consultation récente.</p>
+        <p className="text-sm mt-2">Vos corrigés consultés apparaîtront ici.</p>
+      </div>
+    );
+  }
+
   return (
     <Table>
       <TableHeader>
@@ -56,16 +71,28 @@ const UserHistory = () => {
           <TableHead>UE</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Année</TableHead>
-          <TableHead>Date de consultation</TableHead>
+          <TableHead>Exercice</TableHead>
+          <TableHead>Date</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {consultations.map((consultation) => (
           <TableRow key={consultation.id}>
-            <TableCell>{consultation.corriges?.ues?.nom ?? "UE supprimée"}</TableCell>
-            <TableCell>{consultation.corriges?.type ?? "-"}</TableCell>
-            <TableCell>{consultation.corriges?.annee ?? "-"}</TableCell>
-            <TableCell>{new Date(consultation.viewed_at).toLocaleDateString()}</TableCell>
+            <TableCell className="font-medium">{consultation.corriges?.ues?.nom ?? "UE supprimée"}</TableCell>
+            <TableCell>{consultation.corriges?.exercices?.type ?? "-"}</TableCell>
+            <TableCell>{consultation.corriges?.exercices?.annee ?? "-"}</TableCell>
+            <TableCell>
+              {consultation.corriges?.exercices?.numero 
+                ? `Exercice ${consultation.corriges.exercices.numero}` 
+                : "-"}
+            </TableCell>
+            <TableCell>{new Date(consultation.viewed_at).toLocaleDateString('fr-FR', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</TableCell>
           </TableRow>
         ))}
       </TableBody>

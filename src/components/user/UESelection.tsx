@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 interface UFR { id: string; nom: string; description: string | null; image_url: string | null; }
 interface Departement { id: string; nom: string; description: string | null; image_url: string | null; ufr_id: string | null; }
 interface UE { id: string; nom: string; description: string | null; discipline_id: string | null; }
-interface Exercice { id: number; numero: number; type: string; annee: string; description: string | null; }
+interface Exercice { id: string; numero: number; type: string; annee: string; description: string | null; }
 
 const UESelection = () => {
   const { profile } = useAuth();
