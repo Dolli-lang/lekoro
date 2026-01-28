@@ -10,6 +10,7 @@ import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
 import Confidentialite from "./pages/Confidentialite";
 import Conditions from "./pages/Conditions";
+import InstallPWA from "./pages/InstallPWA";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import UserDashboard from "./pages/UserDashboard";
@@ -30,8 +31,11 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/confidentialite" element={<Confidentialite />} />
             <Route path="/conditions" element={<Conditions />} />
+            <Route path="/install" element={<InstallPWA />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/profile" element={<UserDashboard />} />
+            <Route path="*" element={<NotFound />} />
             <Route path="/profile" element={<UserDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

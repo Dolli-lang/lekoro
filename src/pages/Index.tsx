@@ -60,7 +60,7 @@ const Index = () => {
             Ressources pédagogiques pour étudiants universitaires.
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <Link to="/ues">
+            <Link to="/dashboard">
               <Button size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
                 <BookOpen className="mr-2 h-5 w-5" />
                 Parcourir les UEs
