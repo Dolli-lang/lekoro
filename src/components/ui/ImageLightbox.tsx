@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "./button";
 
 interface ImageLightboxProps {
   images: string[];
@@ -14,109 +13,97 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
   useEffect(() => {
     setCurrentIndex(initialIndex);
-  }, [initialIndex]);
-
-  const handlePrevious = useCallback(() => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
-  }, [images.length]);
-
-  const handleNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-  }, [images.length]);
-
-  const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") onClose();
-    if (e.key === "ArrowLeft") handlePrevious();
-    if (e.key === "ArrowRight") handleNext();
-  }, [onClose, handlePrevious, handleNext]);
+  }, [initialIndex, isOpen]);
 
   useEffect(() => {
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
-    }
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowLeft" && currentIndex > 0) setCurrentIndex(currentIndex - 1);
+      if (e.key === "ArrowRight" && currentIndex < images.length - 1) setCurrentIndex(currentIndex + 1);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = "";
     };
-  }, [isOpen, handleKeyDown]);
+  }, [isOpen, currentIndex, images.length, onClose]);
 
   if (!isOpen || images.length === 0) return null;
 
+  const goPrev = () => {
+    if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
+  };
+
+  const goNext = () => {
+    if (currentIndex < images.length - 1) setCurrentIndex(currentIndex + 1);
+  };
+
   return (
-    <div 
-      className="fixed inset-0 bg-black"
-      style={{ zIndex: 999999 }}
-    >
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 flex justify-between items-center p-3 z-10">
-        <div className="text-white text-sm font-medium bg-white/10 px-3 py-1.5 rounded-full">
-          {currentIndex + 1} / {images.length}
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-white rounded-full h-10 w-10"
-          onClick={onClose}
-        >
-          <X className="w-6 h-6" />
-        </Button>
+    <div className="lightbox-overlay" onClick={onClose}>
+      {/* Close button */}
+      <button 
+        className="lightbox-close"
+        onClick={onClose}
+        aria-label="Fermer"
+      >
+        <X size={28} />
+      </button>
+
+      {/* Counter */}
+      <div className="lightbox-counter">
+        {currentIndex + 1} / {images.length}
       </div>
 
-      {/* Image container - absolutely centered */}
-      <div 
-        className="absolute inset-0 flex items-center justify-center"
-        style={{ top: 60, bottom: images.length > 1 ? 80 : 0 }}
-      >
+      {/* Main image container */}
+      <div className="lightbox-content" onClick={(e) => e.stopPropagation()}>
         <img
+          key={currentIndex}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          className="max-w-[95vw] max-h-full object-contain"
-          style={{ pointerEvents: 'none', userSelect: 'none' }}
+          className="lightbox-image"
           draggable={false}
         />
       </div>
 
-      {/* Navigation buttons */}
-      {images.length > 1 && (
-        <>
-          <button
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/20 text-white w-12 h-12 rounded-full z-10 flex items-center justify-center"
-            onClick={handlePrevious}
-          >
-            <ChevronLeft className="w-7 h-7" />
-          </button>
-          <button
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/20 text-white w-12 h-12 rounded-full z-10 flex items-center justify-center"
-            onClick={handleNext}
-          >
-            <ChevronRight className="w-7 h-7" />
-          </button>
-        </>
+      {/* Navigation - Previous */}
+      {currentIndex > 0 && (
+        <button 
+          className="lightbox-nav lightbox-nav-prev"
+          onClick={(e) => { e.stopPropagation(); goPrev(); }}
+          aria-label="Image précédente"
+        >
+          <ChevronLeft size={32} />
+        </button>
+      )}
+
+      {/* Navigation - Next */}
+      {currentIndex < images.length - 1 && (
+        <button 
+          className="lightbox-nav lightbox-nav-next"
+          onClick={(e) => { e.stopPropagation(); goNext(); }}
+          aria-label="Image suivante"
+        >
+          <ChevronRight size={32} />
+        </button>
       )}
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div className="absolute bottom-0 left-0 right-0 py-3 px-4 flex justify-center z-10">
-          <div className="flex gap-2 overflow-x-auto max-w-full">
-            {images.map((img, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentIndex(idx)}
-                className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 ${
-                  idx === currentIndex 
-                    ? "border-primary" 
-                    : "border-transparent opacity-50"
-                }`}
-              >
-                <img
-                  src={img}
-                  alt={`Miniature ${idx + 1}`}
-                  className="w-full h-full object-cover"
-                />
-              </button>
-            ))}
-          </div>
+        <div className="lightbox-thumbnails" onClick={(e) => e.stopPropagation()}>
+          {images.map((img, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`lightbox-thumb ${idx === currentIndex ? 'lightbox-thumb-active' : ''}`}
+            >
+              <img src={img} alt={`Miniature ${idx + 1}`} draggable={false} />
+            </button>
+          ))}
         </div>
       )}
     </div>
