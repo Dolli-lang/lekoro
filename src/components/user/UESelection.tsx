@@ -7,6 +7,7 @@ import { BookOpen, FileText, Loader2, ArrowLeft, MessageSquare } from "lucide-re
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
 // --- INTERFACES ---
 interface UFR { id: string; nom: string; description: string | null; image_url: string | null; }
@@ -32,6 +33,8 @@ const UESelection = () => {
   const [exercicesDialogOpen, setExercicesDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [allImages, setAllImages] = useState<string[]>([]);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   // Précharger les images
   const preloadImages = (urls: string[]) => {
@@ -124,8 +127,24 @@ const UESelection = () => {
       setAllImages(images);
       preloadImages(images);
       setExercicesDialogOpen(false);
+      setLightboxIndex(0);
+      setLightboxOpen(true);
       await supabase.from("consultations").insert({ corrige_id: data[0].id, user_id: profile?.id });
     }
+  };
+
+  const handleCloseLightbox = () => {
+    setLightboxOpen(false);
+    setAllImages([]);
+    setSelectedExercice(null);
+  };
+
+  const handleBackToDepartements = () => {
+    setSelectedDepartement(null);
+    setUes([]);
+    setAllImages([]);
+    setLightboxOpen(false);
+    setSelectedExercice(null);
   };
 
   return (
@@ -192,7 +211,7 @@ const UESelection = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <Button variant="ghost" onClick={() => { setSelectedDepartement(null); setUes([]); }} className="mb-4">
+            <Button variant="ghost" onClick={handleBackToDepartements} className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" /> Retour aux départements
             </Button>
             <h2 className="text-2xl font-bold bg-accent/10 p-4 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h2>
@@ -210,19 +229,13 @@ const UESelection = () => {
           </div>
         )}
 
-        {/* Affichage des images directement sous les exercices */}
-        {allImages.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-xl font-bold mb-4">
-              {selectedUE?.nom} - Exercice {selectedExercice?.numero}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {allImages.map((url, idx) => (
-                <img key={idx} src={url} alt={`Page ${idx + 1}`} className="w-full h-auto border rounded-md" />
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Lightbox plein écran pour les corrigés */}
+        <ImageLightbox
+          images={allImages}
+          initialIndex={lightboxIndex}
+          isOpen={lightboxOpen}
+          onClose={handleCloseLightbox}
+        />
       </main>
 
       {/* FOOTER */}
