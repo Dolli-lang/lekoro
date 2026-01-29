@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { createPortal } from "react-dom";
 
 interface ImageLightboxProps {
   images: string[];
@@ -17,15 +18,21 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
     }
   }, [initialIndex, isOpen]);
 
+  const goPrev = useCallback(() => {
+    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
+  }, [currentIndex]);
+
+  const goNext = useCallback(() => {
+    if (currentIndex < images.length - 1) setCurrentIndex(prev => prev + 1);
+  }, [currentIndex, images.length]);
+
   useEffect(() => {
     if (!isOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
       if (e.key === "Escape") onClose();
-      if (e.key === "ArrowLeft" && currentIndex > 0) setCurrentIndex(prev => prev - 1);
-      if (e.key === "ArrowRight" && currentIndex < images.length - 1) setCurrentIndex(prev => prev + 1);
+      if (e.key === "ArrowLeft") goPrev();
+      if (e.key === "ArrowRight") goNext();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -35,64 +42,48 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       window.removeEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "";
     };
-  }, [isOpen, currentIndex, images.length, onClose]);
+  }, [isOpen, goPrev, goNext, onClose]);
 
   if (!isOpen || images.length === 0) return null;
 
-  const goPrev = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
-  };
-
-  const goNext = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (currentIndex < images.length - 1) setCurrentIndex(prev => prev + 1);
-  };
-
-  const handleClose = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onClose();
-  };
-
-  const handleThumbClick = (e: React.MouseEvent, idx: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setCurrentIndex(idx);
-  };
-
-  return (
-    <div 
+  const content = (
+    <div
       style={{
         position: "fixed",
-        inset: 0,
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
         backgroundColor: "#000",
-        zIndex: 999999,
+        zIndex: 2147483647,
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        overflow: "hidden"
       }}
     >
-      {/* Header */}
-      <div style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "12px 16px",
-        flexShrink: 0
-      }}>
-        <span style={{
-          color: "#fff",
-          fontSize: "14px",
-          background: "rgba(255,255,255,0.15)",
-          padding: "6px 14px",
-          borderRadius: "20px"
-        }}>
+      {/* Header bar */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "12px 16px",
+          flexShrink: 0
+        }}
+      >
+        <span
+          style={{
+            color: "#fff",
+            fontSize: "14px",
+            background: "rgba(255,255,255,0.15)",
+            padding: "6px 14px",
+            borderRadius: "20px"
+          }}
+        >
           {currentIndex + 1} / {images.length}
         </span>
         <button
-          onClick={handleClose}
+          onClick={onClose}
           style={{
             background: "rgba(255,255,255,0.15)",
             border: "none",
@@ -110,17 +101,19 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         </button>
       </div>
 
-      {/* Image area */}
-      <div style={{
-        flex: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-        overflow: "hidden",
-        minHeight: 0
-      }}>
-        {/* Prev button */}
+      {/* Main image area */}
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+          minHeight: 0,
+          padding: "0 60px"
+        }}
+      >
+        {/* Previous button */}
         {currentIndex > 0 && (
           <button
             onClick={goPrev}
@@ -138,8 +131,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
               alignItems: "center",
               justifyContent: "center",
               color: "#fff",
-              cursor: "pointer",
-              zIndex: 10
+              cursor: "pointer"
             }}
           >
             <ChevronLeft size={28} />
@@ -148,10 +140,11 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
         {/* Image */}
         <img
+          key={`img-${currentIndex}`}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
           style={{
-            maxWidth: "calc(100% - 120px)",
+            maxWidth: "100%",
             maxHeight: "100%",
             objectFit: "contain",
             display: "block"
@@ -177,8 +170,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
               alignItems: "center",
               justifyContent: "center",
               color: "#fff",
-              cursor: "pointer",
-              zIndex: 10
+              cursor: "pointer"
             }}
           >
             <ChevronRight size={28} />
@@ -188,18 +180,20 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
       {/* Thumbnails */}
       {images.length > 1 && (
-        <div style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "12px",
-          gap: "8px",
-          overflowX: "auto",
-          flexShrink: 0
-        }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            padding: "12px",
+            gap: "8px",
+            overflowX: "auto",
+            flexShrink: 0
+          }}
+        >
           {images.map((img, idx) => (
             <button
               key={idx}
-              onClick={(e) => handleThumbClick(e, idx)}
+              onClick={() => setCurrentIndex(idx)}
               style={{
                 width: "50px",
                 height: "50px",
@@ -225,4 +219,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       )}
     </div>
   );
+
+  // Use portal to render at document body level
+  return createPortal(content, document.body);
 };
