@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { createPortal } from "react-dom";
 
@@ -11,6 +11,7 @@ interface ImageLightboxProps {
 
 export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLightboxProps) => {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const scrollYRef = useRef(0);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,7 +31,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
     if (!isOpen) return;
 
     // Capture scroll position BEFORE modifying styles
-    const scrollY = window.scrollY;
+    scrollYRef.current = window.scrollY;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -47,7 +48,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
     document.body.style.width = "100%";
-    document.body.style.top = `-${scrollY}px`;
+    document.body.style.top = `-${scrollYRef.current}px`;
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
@@ -56,7 +57,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       document.body.style.position = "";
       document.body.style.width = "";
       document.body.style.top = "";
-      window.scrollTo(0, scrollY);
+      window.scrollTo(0, scrollYRef.current);
     };
   }, [isOpen, goPrev, goNext, onClose]);
 
