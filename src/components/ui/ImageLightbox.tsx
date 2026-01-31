@@ -61,23 +61,25 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         overflow: "hidden"
       }}
     >
-      {/* Header bar */}
+      {/* Header bar - compact */}
       <div
         style={{
+          position: "absolute",
+          top: "12px",
+          right: "12px",
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
-          padding: "12px 16px",
-          flexShrink: 0
+          gap: "12px",
+          zIndex: 10
         }}
       >
         <span
           style={{
             color: "#fff",
-            fontSize: "14px",
-            background: "rgba(255,255,255,0.15)",
-            padding: "6px 14px",
-            borderRadius: "20px"
+            fontSize: "13px",
+            background: "rgba(0,0,0,0.5)",
+            padding: "5px 12px",
+            borderRadius: "16px"
           }}
         >
           {currentIndex + 1} / {images.length}
@@ -85,11 +87,11 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
         <button
           onClick={onClose}
           style={{
-            background: "rgba(255,255,255,0.15)",
+            background: "rgba(0,0,0,0.5)",
             border: "none",
             borderRadius: "50%",
-            width: "44px",
-            height: "44px",
+            width: "40px",
+            height: "40px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -97,11 +99,11 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
             cursor: "pointer"
           }}
         >
-          <X size={24} />
+          <X size={22} />
         </button>
       </div>
 
-      {/* Main image area */}
+      {/* Main image area - full screen */}
       <div
         style={{
           flex: 1,
@@ -109,11 +111,11 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          minHeight: 0,
-          padding: "0 60px"
+          width: "100%",
+          height: "100%"
         }}
       >
-        {/* Previous button */}
+        {/* Previous button - transparent */}
         {currentIndex > 0 && (
           <button
             onClick={goPrev}
@@ -122,37 +124,38 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
               left: "8px",
               top: "50%",
               transform: "translateY(-50%)",
-              background: "rgba(255,255,255,0.2)",
+              background: "rgba(0,0,0,0.3)",
               border: "none",
               borderRadius: "50%",
-              width: "48px",
-              height: "48px",
+              width: "44px",
+              height: "44px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#fff",
-              cursor: "pointer"
+              cursor: "pointer",
+              zIndex: 10
             }}
           >
-            <ChevronLeft size={28} />
+            <ChevronLeft size={26} />
           </button>
         )}
 
-        {/* Image */}
+        {/* Image - plein écran */}
         <img
           key={`img-${currentIndex}`}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
           style={{
-            maxWidth: "100%",
-            maxHeight: "100%",
+            width: "100%",
+            height: "100%",
             objectFit: "contain",
             display: "block"
           }}
           draggable={false}
         />
 
-        {/* Next button */}
+        {/* Next button - transparent */}
         {currentIndex < images.length - 1 && (
           <button
             onClick={goNext}
@@ -161,33 +164,38 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
               right: "8px",
               top: "50%",
               transform: "translateY(-50%)",
-              background: "rgba(255,255,255,0.2)",
+              background: "rgba(0,0,0,0.3)",
               border: "none",
               borderRadius: "50%",
-              width: "48px",
-              height: "48px",
+              width: "44px",
+              height: "44px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               color: "#fff",
-              cursor: "pointer"
+              cursor: "pointer",
+              zIndex: 10
             }}
           >
-            <ChevronRight size={28} />
+            <ChevronRight size={26} />
           </button>
         )}
       </div>
 
-      {/* Thumbnails */}
+      {/* Thumbnails - bottom overlay */}
       {images.length > 1 && (
         <div
           style={{
+            position: "absolute",
+            bottom: "12px",
+            left: "50%",
+            transform: "translateX(-50%)",
             display: "flex",
-            justifyContent: "center",
-            padding: "12px",
-            gap: "8px",
-            overflowX: "auto",
-            flexShrink: 0
+            gap: "6px",
+            background: "rgba(0,0,0,0.5)",
+            padding: "6px 10px",
+            borderRadius: "12px",
+            zIndex: 10
           }}
         >
           {images.map((img, idx) => (
@@ -195,11 +203,11 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
               key={idx}
               onClick={() => setCurrentIndex(idx)}
               style={{
-                width: "50px",
-                height: "50px",
-                borderRadius: "6px",
+                width: "40px",
+                height: "40px",
+                borderRadius: "4px",
                 overflow: "hidden",
-                border: idx === currentIndex ? "2px solid #3b82f6" : "2px solid transparent",
+                border: idx === currentIndex ? "2px solid #fff" : "2px solid transparent",
                 padding: 0,
                 background: "none",
                 cursor: "pointer",
