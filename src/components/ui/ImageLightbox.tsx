@@ -35,12 +35,27 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
       if (e.key === "ArrowRight") goNext();
     };
 
+    const preventScroll = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+
     window.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("touchmove", preventScroll, { passive: false });
     document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.body.style.top = `-${window.scrollY}px`;
+
+    const scrollY = window.scrollY;
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("touchmove", preventScroll);
       document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.width = "";
+      document.body.style.top = "";
+      window.scrollTo(0, scrollY);
     };
   }, [isOpen, goPrev, goNext, onClose]);
 
