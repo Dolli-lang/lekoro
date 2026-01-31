@@ -29,6 +29,9 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
   useEffect(() => {
     if (!isOpen) return;
 
+    // Capture scroll position BEFORE modifying styles
+    const scrollY = window.scrollY;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
       if (e.key === "ArrowLeft") goPrev();
@@ -44,9 +47,7 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
     document.body.style.overflow = "hidden";
     document.body.style.position = "fixed";
     document.body.style.width = "100%";
-    document.body.style.top = `-${window.scrollY}px`;
-
-    const scrollY = window.scrollY;
+    document.body.style.top = `-${scrollY}px`;
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
