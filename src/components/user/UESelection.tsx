@@ -148,124 +148,57 @@ const UESelection = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* HEADER */}
-      <header className="border-b bg-card px-4 py-3 sticky top-0 z-50">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <span className="font-bold text-xl text-primary">Le Koro</span>
-            <nav className="hidden md:flex gap-4 text-sm font-medium">
-              <a href="#" className="hover:text-primary transition-colors">Accueil</a>
-              <a href="#" className="text-primary border-b-2 border-primary">UEs & Corrigés</a>
-              <a href="#" className="hover:text-primary transition-colors">Historique</a>
-              <a href="#" className="hover:text-primary transition-colors">Profil</a>
-            </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground hidden sm:inline">
-              Bienvenue, <strong>{profile?.full_name || "Utilisateur"}</strong>
-            </span>
-            <Button variant="outline" size="sm" className="gap-2">
-              <MessageSquare className="w-4 h-4" /> Contacter l'admin
-            </Button>
+    <div className="space-y-4">
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      ) : !selectedDepartement ? (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold bg-muted p-3 rounded-lg border-l-4 border-primary">
+            {selectedUFR?.nom || "Choisissez un département"}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {departements.map(dept => (
+              <Card key={dept.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleDepartementClick(dept)}>
+                <CardHeader className="pb-2">
+                  {dept.image_url && <img src={dept.image_url} alt={dept.nom} className="w-full h-24 object-cover rounded-md mb-2" />}
+                  <CardTitle className="flex items-center gap-2 text-base"><BookOpen className="w-4 h-4 text-primary" /> {dept.nom}</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Button variant="outline" size="sm" className="w-full">Voir les UEs</Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-      </header>
-
-      {/* HERO */}
-      <section className="bg-gradient-to-b from-primary/5 to-background pt-12 pb-8 px-4 text-center">
-        <div className="container mx-auto max-w-3xl">
-          <h1 className="text-4xl font-extrabold tracking-tight mb-4">Disciplines et UEs</h1>
-          <p className="text-muted-foreground text-lg mb-4">
-            Sélectionnez un UFR, puis un département, puis une UE pour accéder aux TD et examens.
-          </p>
-          <div className="bg-primary/10 inline-block px-4 py-1 rounded-full text-primary font-medium text-sm">
-            Plateforme dédiée aux étudiants en Mathématiques et Informatique.
+      ) : (
+        <div className="space-y-4">
+          <Button variant="ghost" size="sm" onClick={handleBackToDepartements}>
+            <ArrowLeft className="w-4 h-4 mr-1" /> Retour
+          </Button>
+          <h3 className="text-lg font-semibold bg-accent/10 p-3 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {ues.map(ue => (
+              <Card key={ue.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleUEClick(ue)}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base"><FileText className="w-4 h-4 text-accent" /> {ue.nom}</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Button variant="outline" size="sm" className="w-full">Voir les corrigés</Button>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
-      </section>
+      )}
 
-      {/* MAIN */}
-      <main className="flex-grow container mx-auto px-4 py-8">
-        {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-          </div>
-        ) : !selectedDepartement ? (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold bg-muted p-4 rounded-lg border-l-4 border-primary">
-              {selectedUFR?.nom || "Sélectionnez un département"}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {departements.map(dept => (
-                <Card key={dept.id} className="cursor-pointer" onClick={() => handleDepartementClick(dept)}>
-                  <CardHeader>
-                    {dept.image_url && <img src={dept.image_url} alt={dept.nom} className="w-full h-32 object-cover rounded-md mb-3" />}
-                    <CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-primary" /> {dept.nom}</CardTitle>
-                    {dept.description && <CardDescription>{dept.description}</CardDescription>}
-                  </CardHeader>
-                  <CardContent><Button variant="outline" className="w-full">Voir les UEs</Button></CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <Button variant="ghost" onClick={handleBackToDepartements} className="mb-4">
-              <ArrowLeft className="w-4 h-4 mr-2" /> Retour aux départements
-            </Button>
-            <h2 className="text-2xl font-bold bg-accent/10 p-4 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {ues.map(ue => (
-                <Card key={ue.id} className="cursor-pointer" onClick={() => handleUEClick(ue)}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><FileText className="w-5 h-5 text-accent" /> {ue.nom}</CardTitle>
-                    {ue.description && <CardDescription>{ue.description}</CardDescription>}
-                  </CardHeader>
-                  <CardContent><Button variant="outline" className="w-full">Voir les corrigés</Button></CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Lightbox plein écran pour les corrigés */}
-        <ImageLightbox
-          images={allImages}
-          initialIndex={lightboxIndex}
-          isOpen={lightboxOpen}
-          onClose={handleCloseLightbox}
-        />
-      </main>
-
-      {/* FOOTER */}
-      <footer className="bg-card border-t py-12 px-4 mt-12">
-        <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <h3 className="font-bold text-lg mb-4">Le Koro</h3>
-            <p className="text-sm text-muted-foreground">
-              Accédez à des milliers de corrigés pour réussir vos études en Math-Info.
-            </p>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase">Navigation</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary">FAQ</a></li>
-              <li><a href="#" className="hover:text-primary">Contact</a></li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-4 text-sm uppercase">Légal</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-primary">Confidentialité</a></li>
-              <li><a href="#" className="hover:text-primary">Conditions d'utilisation</a></li>
-            </ul>
-          </div>
-          <div className="text-sm text-muted-foreground md:text-right">
-            <p>© 2025 Le Koro. Tous droits réservés.</p>
-          </div>
-        </div>
-      </footer>
+      <ImageLightbox
+        images={allImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={handleCloseLightbox}
+      />
 
       {/* MODALES JS pour sélection année */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
