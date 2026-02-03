@@ -85,18 +85,15 @@ const UserDashboard = () => {
     <div className="min-h-screen flex flex-col bg-gradient-subtle">
       <Navbar />
       <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="mb-8 flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">
-              Bienvenue, {profile?.full_name || "Utilisateur"}
-            </h1>
-            <p className="text-muted-foreground">Accédez aux corrigés et gérez votre profil</p>
-          </div>
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Bonjour, {profile?.full_name?.split(' ')[0] || "Utilisateur"}
+          </h1>
           <Dialog open={contactOpen} onOpenChange={setContactOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2">
                 <Mail className="w-4 h-4" />
-                Contacter l'admin
+                <span className="hidden sm:inline">Contacter</span>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -177,13 +174,9 @@ const UserDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="ues" className="mt-6">
-            <Card className="border-l-4 border-l-primary shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-blue))] to-card animate-fade-in">
-              <CardHeader>
-              <CardTitle className="text-primary">Disciplines et UEs</CardTitle>
-                <CardDescription>Sélectionnez un UFR, puis un département, puis une UE pour accéder aux TD et examens</CardDescription>
-              </CardHeader>
-              <CardContent>
+          <TabsContent value="ues" className="mt-4">
+            <Card className="border-l-4 border-l-primary shadow-md bg-card">
+              <CardContent className="pt-4">
                 <UESelection />
               </CardContent>
             </Card>
