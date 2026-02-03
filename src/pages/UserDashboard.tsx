@@ -16,6 +16,7 @@ import { z } from "zod";
 import UESelection from "@/components/user/UESelection";
 import UserHistory from "@/components/user/UserHistory";
 import UserProfile from "@/components/user/UserProfile";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 const contactSchema = z.object({
   subject: z.string().trim().min(3, "Le sujet doit contenir au moins 3 caractères").max(200),
@@ -84,7 +85,8 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-subtle">
       <Navbar />
-      <main className="flex-1 container mx-auto px-4 py-8">
+      <PWAInstallPrompt />
+      <main className="flex-1 container mx-auto px-4 py-6">
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             Bonjour, {profile?.full_name?.split(' ')[0] || "Utilisateur"}

@@ -1,7 +1,7 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { User, LogOut, LayoutDashboard, Home } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Home, ArrowLeft } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,18 +15,33 @@ import logo from "@/assets/logo.png";
 export const Navbar = () => {
   const { user, profile, isAdmin, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
 
+  const canGoBack = location.pathname !== "/" && window.history.length > 1;
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center transition-transform hover:scale-105">
-          <img src={logo} alt="Le Koro" className="h-10 w-10" />
-        </Link>
+      <div className="container flex h-14 items-center justify-between">
+        <div className="flex items-center gap-2">
+          {canGoBack && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="h-8 w-8"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          )}
+          <Link to="/" className="flex items-center transition-transform hover:scale-105">
+            <img src={logo} alt="Le Koro" className="h-9 w-9" />
+          </Link>
+        </div>
 
         <div className="flex items-center gap-4">
           <Button 
