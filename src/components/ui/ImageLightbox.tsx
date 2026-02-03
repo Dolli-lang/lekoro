@@ -160,12 +160,14 @@ export const ImageLightbox = ({ images, initialIndex, isOpen, onClose }: ImageLi
 
         {/* Image - plein écran */}
         <img
-          key={`img-${currentIndex}`}
+          key={`img-${currentIndex}-${images[currentIndex]}`}
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
           style={{
-            width: "100%",
-            height: "100%",
+            maxWidth: "100%",
+            maxHeight: "100%",
+            width: "auto",
+            height: "auto",
             objectFit: "contain",
             display: "block"
           }}
