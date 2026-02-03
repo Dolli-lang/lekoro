@@ -148,44 +148,92 @@ const UESelection = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {loading ? (
-        <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex justify-center py-16">
+          <div className="relative">
+            <div className="w-12 h-12 border-4 border-primary/20 rounded-full animate-spin border-t-primary" />
+          </div>
         </div>
       ) : !selectedDepartement ? (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold bg-muted p-3 rounded-lg border-l-4 border-primary">
-            {selectedUFR?.nom || "Choisissez un département"}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {departements.map(dept => (
-              <Card key={dept.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleDepartementClick(dept)}>
-                <CardHeader className="pb-2">
-                  {dept.image_url && <img src={dept.image_url} alt={dept.nom} className="w-full h-24 object-cover rounded-md mb-2" />}
-                  <CardTitle className="flex items-center gap-2 text-base"><BookOpen className="w-4 h-4 text-primary" /> {dept.nom}</CardTitle>
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-[hsl(280_70%_65%)]/10 border border-primary/20">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-[hsl(280_70%_60%)] flex items-center justify-center">
+              <BookOpen className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg">{selectedUFR?.nom || "Vos départements"}</h3>
+              <p className="text-sm text-muted-foreground">Sélectionnez un département pour voir les UEs</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {departements.map((dept, i) => (
+              <Card 
+                key={dept.id} 
+                className="cursor-pointer hover-lift border-0 shadow-lg overflow-hidden group animate-slide-up" 
+                style={{ animationDelay: `${i * 0.1}s` }}
+                onClick={() => handleDepartementClick(dept)}
+              >
+                <div className="h-1 bg-gradient-to-r from-primary to-[hsl(280_70%_60%)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardHeader className="pb-3">
+                  {dept.image_url && (
+                    <div className="relative overflow-hidden rounded-lg mb-3">
+                      <img src={dept.image_url} alt={dept.nom} className="w-full h-28 object-cover group-hover:scale-110 transition-transform duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    </div>
+                  )}
+                  <CardTitle className="flex items-center gap-2 text-base group-hover:text-primary transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                      <BookOpen className="w-4 h-4" />
+                    </div>
+                    {dept.nom}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Button variant="outline" size="sm" className="w-full">Voir les UEs</Button>
+                  <Button variant="outline" size="sm" className="w-full group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">
+                    Explorer les UEs →
+                  </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          <Button variant="ghost" size="sm" onClick={handleBackToDepartements}>
-            <ArrowLeft className="w-4 h-4 mr-1" /> Retour
+        <div className="space-y-6">
+          <Button variant="ghost" size="sm" onClick={handleBackToDepartements} className="hover:bg-primary/10 gap-2">
+            <ArrowLeft className="w-4 h-4" /> Retour aux départements
           </Button>
-          <h3 className="text-lg font-semibold bg-accent/10 p-3 rounded-lg border-l-4 border-accent">{selectedDepartement.nom}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {ues.map(ue => (
-              <Card key={ue.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleUEClick(ue)}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="flex items-center gap-2 text-base"><FileText className="w-4 h-4 text-accent" /> {ue.nom}</CardTitle>
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-accent/10 to-yellow-400/10 border border-accent/20">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-accent to-yellow-400 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg">{selectedDepartement.nom}</h3>
+              <p className="text-sm text-muted-foreground">Choisissez une UE pour accéder aux corrigés</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {ues.map((ue, i) => (
+              <Card 
+                key={ue.id} 
+                className="cursor-pointer hover-lift border-0 shadow-lg overflow-hidden group animate-slide-up" 
+                style={{ animationDelay: `${i * 0.1}s` }}
+                onClick={() => handleUEClick(ue)}
+              >
+                <div className="h-1 bg-gradient-to-r from-accent to-yellow-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base group-hover:text-accent transition-colors">
+                    <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-all">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    {ue.nom}
+                  </CardTitle>
+                  {ue.description && <CardDescription className="mt-2">{ue.description}</CardDescription>}
                 </CardHeader>
                 <CardContent className="pt-0">
-                  <Button variant="outline" size="sm" className="w-full">Voir les corrigés</Button>
+                  <Button variant="outline" size="sm" className="w-full group-hover:bg-accent group-hover:text-white group-hover:border-accent transition-all">
+                    Voir les corrigés →
+                  </Button>
                 </CardContent>
               </Card>
             ))}
@@ -200,18 +248,39 @@ const UESelection = () => {
         onClose={handleCloseLightbox}
       />
 
-      {/* MODALES JS pour sélection année */}
+      {/* Modal sélection type/année */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{selectedUE?.nom}</DialogTitle></DialogHeader>
-          <div className="space-y-4 py-4">
+        <DialogContent className="border-primary/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-[hsl(280_70%_60%)] flex items-center justify-center">
+                <FileText className="w-4 h-4 text-white" />
+              </div>
+              {selectedUE?.nom}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5 py-4">
             <div className="grid grid-cols-2 gap-4">
-              <Button variant={selectedType === "TD" ? "default" : "outline"} onClick={() => handleTypeSelect("TD")}>TD</Button>
-              <Button variant={selectedType === "Examen" ? "default" : "outline"} onClick={() => handleTypeSelect("Examen")}>Examen</Button>
+              <Button 
+                variant={selectedType === "TD" ? "default" : "outline"} 
+                onClick={() => handleTypeSelect("TD")}
+                className={selectedType === "TD" ? "bg-gradient-to-r from-primary to-[hsl(280_70%_60%)] shadow-lg" : "hover:border-primary hover:text-primary"}
+                size="lg"
+              >
+                📝 TD
+              </Button>
+              <Button 
+                variant={selectedType === "Examen" ? "default" : "outline"} 
+                onClick={() => handleTypeSelect("Examen")}
+                className={selectedType === "Examen" ? "bg-gradient-to-r from-accent to-yellow-400 shadow-lg" : "hover:border-accent hover:text-accent"}
+                size="lg"
+              >
+                📚 Examen
+              </Button>
             </div>
             {selectedType && annees.length > 0 && (
               <Select value={selectedAnnee} onValueChange={handleAnneeSelect}>
-                <SelectTrigger><SelectValue placeholder="Choisir une année" /></SelectTrigger>
+                <SelectTrigger className="h-12"><SelectValue placeholder="📅 Choisir une année" /></SelectTrigger>
                 <SelectContent>{annees.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
               </Select>
             )}
@@ -219,19 +288,35 @@ const UESelection = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Modal sélection exercice */}
       <Dialog open={exercicesDialogOpen} onOpenChange={setExercicesDialogOpen}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>{selectedUE?.nom} - {selectedType} {selectedAnnee}</DialogTitle></DialogHeader>
-          <div className="grid gap-2 py-4">
-            {exercices.map(ex => (
-              <Button key={ex.id} variant="outline" className="justify-start h-auto py-3 px-4" onClick={() => handleExerciceSelect(ex)}>
-                <div className="text-left font-bold">Exercice {ex.numero}</div>
+        <DialogContent className="border-accent/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-yellow-400 flex items-center justify-center">
+                <FileText className="w-4 h-4 text-white" />
+              </div>
+              {selectedUE?.nom} - {selectedType} {selectedAnnee}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-3 py-4">
+            {exercices.map((ex, i) => (
+              <Button 
+                key={ex.id} 
+                variant="outline" 
+                className="justify-start h-auto py-4 px-5 hover:bg-accent/10 hover:border-accent hover:text-accent transition-all group animate-slide-up" 
+                style={{ animationDelay: `${i * 0.05}s` }}
+                onClick={() => handleExerciceSelect(ex)}
+              >
+                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center mr-3 group-hover:bg-accent group-hover:text-white transition-all">
+                  {ex.numero}
+                </div>
+                <span className="font-semibold">Exercice {ex.numero}</span>
               </Button>
             ))}
           </div>
         </DialogContent>
       </Dialog>
-
     </div>
   );
 };

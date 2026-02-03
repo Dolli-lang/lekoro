@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, BookOpen, Clock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import UESelection from "@/components/user/UESelection";
@@ -72,8 +72,14 @@ const UserDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
+        <div className="text-center">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/20 rounded-full animate-spin border-t-primary mx-auto" />
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full animate-pulse border-t-accent mx-auto" style={{ animationDelay: '0.5s' }} />
+          </div>
+          <p className="mt-4 text-muted-foreground animate-pulse">Chargement...</p>
+        </div>
       </div>
     );
   }
@@ -83,24 +89,39 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-subtle">
+    <div className="min-h-screen flex flex-col">
+      {/* Animated background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/5 rounded-full blur-3xl animate-float" style={{ animationDelay: '1.5s' }} />
+      </div>
+      
       <Navbar />
       <PWAInstallPrompt />
+      
       <main className="flex-1 container mx-auto px-4 py-6">
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-            Bonjour, {profile?.full_name?.split(' ')[0] || "Utilisateur"}
-          </h1>
+        {/* Welcome header */}
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-slide-up">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-primary via-[hsl(280_70%_55%)] to-accent bg-clip-text text-transparent animate-text-gradient">
+              Bonjour, {profile?.full_name?.split(' ')[0] || "Utilisateur"} 👋
+            </h1>
+            <p className="text-muted-foreground mt-1">Prêt à réviser aujourd'hui ?</p>
+          </div>
           <Dialog open={contactOpen} onOpenChange={setContactOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 hover-lift glass border-primary/20">
                 <Mail className="w-4 h-4" />
                 <span className="hidden sm:inline">Contacter</span>
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="border-primary/20">
               <DialogHeader>
-                <DialogTitle>Contacter l'administration</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-primary" />
+                  Contacter l'administration
+                </DialogTitle>
                 <DialogDescription>
                   Envoyez un message à l'équipe administrative
                 </DialogDescription>
@@ -114,6 +135,7 @@ const UserDashboard = () => {
                     value={contactData.subject}
                     onChange={(e) => setContactData({ ...contactData, subject: e.target.value })}
                     disabled={sending}
+                    className="focus:ring-2 focus:ring-primary/20"
                   />
                   {contactErrors.subject && (
                     <p className="text-sm text-destructive">{contactErrors.subject}</p>
@@ -128,13 +150,14 @@ const UserDashboard = () => {
                     value={contactData.message}
                     onChange={(e) => setContactData({ ...contactData, message: e.target.value })}
                     disabled={sending}
+                    className="focus:ring-2 focus:ring-primary/20"
                   />
                   {contactErrors.message && (
                     <p className="text-sm text-destructive">{contactErrors.message}</p>
                   )}
                 </div>
                 <div className="flex gap-2">
-                  <Button type="submit" disabled={sending} className="flex-1">
+                  <Button type="submit" disabled={sending} className="flex-1 bg-gradient-to-r from-primary to-[hsl(280_70%_60%)]">
                     {sending ? "Envoi..." : "Envoyer"}
                   </Button>
                   <Button
@@ -154,41 +177,51 @@ const UserDashboard = () => {
           </Dialog>
         </div>
 
-        <Tabs defaultValue="ues" className="mt-8">
-          <TabsList className="grid w-full grid-cols-3 bg-secondary/50 p-1 rounded-lg">
+        <Tabs defaultValue="ues" className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
+          <TabsList className="grid w-full grid-cols-3 bg-card/80 glass p-1.5 rounded-xl shadow-lg border border-primary/10">
             <TabsTrigger 
               value="ues"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-[hsl(280_70%_60%)] data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 gap-2"
             >
-              UEs & Corrigés
+              <BookOpen className="w-4 h-4" />
+              <span className="hidden sm:inline">UEs & Corrigés</span>
+              <span className="sm:hidden">UEs</span>
             </TabsTrigger>
             <TabsTrigger 
               value="history"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-accent data-[state=active]:to-yellow-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 gap-2"
             >
-              Historique
+              <Clock className="w-4 h-4" />
+              <span className="hidden sm:inline">Historique</span>
+              <span className="sm:hidden">Récent</span>
             </TabsTrigger>
             <TabsTrigger 
               value="profile"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-teal data-[state=active]:to-emerald-400 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 gap-2"
             >
+              <User className="w-4 h-4" />
               Profil
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="ues" className="mt-4">
-            <Card className="border-l-4 border-l-primary shadow-md bg-card">
-              <CardContent className="pt-4">
+          <TabsContent value="ues" className="mt-6 animate-slide-up">
+            <Card className="border-0 shadow-xl bg-card/80 glass overflow-hidden">
+              <div className="h-1 bg-gradient-to-r from-primary via-[hsl(280_70%_60%)] to-primary" />
+              <CardContent className="pt-6">
                 <UESelection />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="history" className="mt-6">
-            <Card className="border-l-4 border-l-[hsl(var(--accent))] shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-yellow))] to-card animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-[hsl(var(--accent))]">Historique de consultation</CardTitle>
-                <CardDescription>Corrigés récemment consultés</CardDescription>
+          <TabsContent value="history" className="mt-6 animate-slide-up">
+            <Card className="border-0 shadow-xl bg-card/80 glass overflow-hidden hover-lift">
+              <div className="h-1 bg-gradient-to-r from-accent via-yellow-400 to-accent" />
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-accent">
+                  <Clock className="w-5 h-5" />
+                  Historique de consultation
+                </CardTitle>
+                <CardDescription>Vos corrigés récemment consultés</CardDescription>
               </CardHeader>
               <CardContent>
                 <UserHistory />
@@ -196,10 +229,14 @@ const UserDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="profile" className="mt-6">
-            <Card className="border-l-4 border-l-teal-500 shadow-[var(--shadow-elegant)] hover:shadow-[var(--shadow-glow)] transition-all hover:scale-[1.02] bg-gradient-to-br from-[hsl(var(--highlight-teal))] to-card animate-fade-in">
-              <CardHeader>
-                <CardTitle className="text-teal-600 dark:text-teal-400">Mon profil</CardTitle>
+          <TabsContent value="profile" className="mt-6 animate-slide-up">
+            <Card className="border-0 shadow-xl bg-card/80 glass overflow-hidden hover-lift">
+              <div className="h-1 bg-gradient-to-r from-teal via-emerald-400 to-teal" />
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-teal">
+                  <User className="w-5 h-5" />
+                  Mon profil
+                </CardTitle>
                 <CardDescription>Gérez vos informations personnelles</CardDescription>
               </CardHeader>
               <CardContent>
